@@ -48,7 +48,8 @@ FTPSession >> appe: aString [
 FTPSession >> cdup: aString [
 	"This command is a special case of CWD, and is included to simplify the implementation of programs for transferring directory trees between operating systems having different syntaxes for naming the parent directory. The reply codes shall be identical to the reply codes of CWD."
 	
-	self writeStatus: 502.
+	self context: (self context changeToParent).
+	self writeStatus: 250.
 ]
 
 { #category : #accessing }
@@ -74,7 +75,8 @@ FTPSession >> createServer [
 FTPSession >> cwd: aString [
 	"This command allows the user to work with a different directory or dataset for file storage or retrieval without altering his login or accounting information. Transfer parameters are similarly unchanged. The argument is a pathname specifying a directory or other system dependent file group designator."
 	
-	self writeStatus: 502.
+	self context: (self context changeWorkingDirectory: aString).
+	self writeStatus: 250.
 ]
 
 { #category : #'commands-file-transfer' }
@@ -129,7 +131,8 @@ FTPSession >> isValidCommand: aSelector [
 
 { #category : #'commands-file-transfer' }
 FTPSession >> list: aString [
-	self writeStatus: 502.
+	self context listTo: self.
+	self writeStatus: 226.
 ]
 
 { #category : #'commands-file-transfer' }
@@ -169,7 +172,8 @@ FTPSession >> pasv: aString [
 
 { #category : #'commands-parameters' }
 FTPSession >> port: aString [
-	self halt.
+	"self halt."
+	self writeStatus: 502.
 ]
 
 { #category : #'accessing-reading' }
@@ -179,7 +183,7 @@ FTPSession >> process [
 
 { #category : #'commands-file-transfer' }
 FTPSession >> pwd: aString [
-	self writeStatus: 502.
+	self write: ('257 "' , self context workingDirectory , '"').
 ]
 
 { #category : #'commands-logout' }
@@ -319,7 +323,7 @@ FTPSession >> user: aString [
 	"The argument field is a Telnet string identifying the user. The user identification is that which is required by the server for access to its file system. This command will normally be the first command transmitted by the user after the control connections are made (some servers may require this). Additional identification information in the form of a password and/or an account command may also be required by some servers. Servers may allow a new USER command to be entered at any point in order to change the access control and/or accounting information. This has the effect of flushing any user, password, and account information already supplied and beginning the login sequence again. All transfer parameters are unchanged and any file transfer in progress is completed under the old access control parameters."
 	
 	self context username: aString.
-	self writeStatus: 200.
+	self writeStatus: 331.
 ]
 
 { #category : #'private-handlers' }
@@ -347,6 +351,16 @@ FTPSession >> write: aString [
 	[ command atEnd ] whileFalse: [
 		self stream nextPutAll: (command upTo: Character cr).
 		self stream crlf; flush ].
+]
+
+{ #category : #'private-writing' }
+FTPSession >> writeStatus [
+	self write: '220 SqueakFtp ready yessir'.
+]
+
+{ #category : #'private-writing' }
+FTPSession >> writeStatus: integer [
+	self write: integer asString, ' OK'.
 ]
 
 { #category : #'private-writing' }
