@@ -35,9 +35,14 @@ FTPClassContext >> changeDirectoryToParent [
 { #category : #navigation }
 FTPClassContext >> listDirectory [
 	self actualClass subclasses do: [ :each |
-		self session write: each name ].
+		self session data writeLine: each name ].
 	self actualClass selectors do: [ :each |
-		self session write: each ].
+		self session data writeLine: each ].
+]
+
+{ #category : #'accessing-dynamic' }
+FTPClassContext >> subclasses [
+	^ self actualClass subclasses
 ]
 
 { #category : #navigation }

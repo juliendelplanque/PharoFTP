@@ -2,26 +2,17 @@ Class {
 	#name : #FTPSession,
 	#superclass : #Object,
 	#instVars : [
-		'server',
+		'process',
 		'context',
-		'socket',
-		'stream',
-		'process'
+		'telnet',
+		'data'
 	],
 	#category : 'FTP-Server'
 }
 
-{ #category : #'instance-creation' }
-FTPSession class >> start: aContext socket: aSocket server: aServer [
-	self new
-		setSocket: aSocket server: aServer;
-		context: aContext;
-		start.
-]
-
 { #category : #'commands-file-transfer' }
 FTPSession >> abor: aString [
-	self status: 502.
+	self telnet status: 502.
 ]
 
 { #category : #'commands-login' }
@@ -30,18 +21,18 @@ FTPSession >> acct: aString [
 
 	There are reply codes to differentiate these cases for the automation: when account information is required for login, the response to a successful PASSword command is reply code 332. On the other hand, if account information is NOT required for login, the reply to a successful PASSword command is 230; and if the account information is needed for  a command issued later in the dialogue, the server should return a 332 or 532 reply depending on whether it stores (pending receipt of the ACCounT command) or discards the command, respectively."
 	
-	self status: 502.
+	self telnet status: 502.
 
 ]
 
 { #category : #'commands-file-actions' }
 FTPSession >> allo: aString [
-	self status: 502.
+	self telnet status: 502.
 ]
 
 { #category : #'commands-file-transfer' }
 FTPSession >> appe: aString [
-	self status: 502.
+	self telnet status: 502.
 ]
 
 { #category : #'commands-login' }
@@ -49,7 +40,7 @@ FTPSession >> cdup: aString [
 	"This command is a special case of CWD, and is included to simplify the implementation of programs for transferring directory trees between operating systems having different syntaxes for naming the parent directory. The reply codes shall be identical to the reply codes of CWD."
 	
 	self context: (self context changeDirectoryToParent).
-	self status: 250.
+	self telnet status: 250.
 ]
 
 { #category : #accessing }
@@ -68,7 +59,7 @@ FTPSession >> createServer [
 		forContext: [
 			[ self sessionLoop ]
 				ensure: [ self destroyServer ] ]
-		priority: self server priority.
+		priority: self telnet server priority.
 ]
 
 { #category : #'commands-login' }
@@ -76,26 +67,30 @@ FTPSession >> cwd: aString [
 	"This command allows the user to work with a different directory or dataset for file storage or retrieval without altering his login or accounting information. Transfer parameters are similarly unchanged. The argument is a pathname specifying a directory or other system dependent file group designator."
 	
 	self context: (self context changeDirectoryTo: aString).
-	self status: 250.
+	self telnet status: 250.
+]
+
+{ #category : #'accessing-reading' }
+FTPSession >> data [
+	^ data
 ]
 
 { #category : #'commands-file-transfer' }
 FTPSession >> dele: aString [
-	self status: 502.
+	self telnet status: 502.
 ]
 
 { #category : #'private-server' }
 FTPSession >> destroyServer [
-	self stream close. 
-	self socket destroy.
+	self telnet close.
+	self data notNil ifTrue: [ self data close ].
 	self process terminate.
-	process := socket := stream := nil.
+	process := telnet := data := nil.
 ]
 
 { #category : #'private-server' }
 FTPSession >> execute: aString [
 	| command selector argument |
-	Transcript show: '>> '; show: aString; cr.
 	aString isEmptyOrNil ifFalse: [
 		command := aString copyUpTo: $ .
 		command notEmpty ifTrue: [
@@ -104,23 +99,22 @@ FTPSession >> execute: aString [
 			(self isValidCommand: selector) ifTrue: [
 				argument := aString copyAfter: $ .
 				^ self perform: selector with: argument ] ] ].
-	self statusNotImplemented.
+	self telnet status: 502 description: 'Command not implemented'.
 ]
 
 { #category : #'commands-informational' }
 FTPSession >> help: aString [
-	self write: self context help.
+	self telnet writeLine: self context help.
 ]
 
 { #category : #testing }
 FTPSession >> isConnected [
-	^self socket isValid 
-		and: [ self socket isConnected ].
+	^ self telnet notNil and: [ self telnet isConnected ].
 ]
 
 { #category : #testing }
 FTPSession >> isRunning [
-	^self process notNil.
+	^ self process notNil.
 ]
 
 { #category : #testing }
@@ -132,13 +126,13 @@ FTPSession >> isValidCommand: aSelector [
 
 { #category : #'commands-file-transfer' }
 FTPSession >> list: aString [
-	self context listTo: self.
-	self status: 226.
+	self context listDirectory.
+	self telnet status: 226.
 ]
 
 { #category : #'commands-file-transfer' }
 FTPSession >> mkd: aString [
-	self status: 502.
+	self telnet status: 502.
 ]
 
 { #category : #'commands-parameters' }
@@ -148,15 +142,14 @@ FTPSession >> mode: aString [
 
 { #category : #'commands-file-transfer' }
 FTPSession >> nlst: aString [
-	self context listTo: self.
-	self status: 502.
+	self list: aString.
 ]
 
 { #category : #'commands-miscellaneous' }
 FTPSession >> noop: aString [
 	"This command does not affect any parameters or previously entered commands. It specifies no action other than that the server send an OK reply."
 
-	self status: 200.
+	self telnet status: 200.
 ]
 
 { #category : #'commands-login' }
@@ -164,17 +157,29 @@ FTPSession >> pass: aString [
 	"The argument field is a Telnet string specifying the user's password.  This command must be immediately preceded by the user name command, and, for some sites, completes the user's identification for access control. Since password information is quite sensitive, it is desirable in general to 'mask' it or suppress typeout. It appears that the server has no foolproof way to achieve this. It is therefore the responsibility of the user-FTP process to hide the sensitive password information."
 	
 	self context password: aString.
-	self status: 200.
+	self telnet status: 200.
 ]
 
 { #category : #'commands-parameters' }
 FTPSession >> pasv: aString [
-	self status: 502.
+	self telnet status: 502.
 ]
 
 { #category : #'commands-parameters' }
 FTPSession >> port: aString [
-	self status: 502.
+	| numbers socket ip port |
+	numbers := (aString findTokens: $,)
+		collect: [ :each | each asNumber ].
+	ip := ByteArray with: numbers first with: numbers second with: numbers third with: numbers fourth.
+	port := numbers fifth * 256 + numbers sixth.
+	self halt.
+	socket := Socket newTCP.
+	socket connectTo: ip port: port.
+	data := FTPConnection new
+		setServer: self telnet server;
+		setSocket: socket;
+		yourself.
+	self telnet status: 200.
 ]
 
 { #category : #'accessing-reading' }
@@ -184,7 +189,7 @@ FTPSession >> process [
 
 { #category : #'commands-file-transfer' }
 FTPSession >> pwd: aString [
-	self write: ('257 "' , self context workingDirectory , '"').
+	self telnet status: 257 description: '"' , self context workingDirectory , '"'.
 ]
 
 { #category : #'commands-logout' }
@@ -201,12 +206,12 @@ FTPSession >> rein: aString [
 	"This command terminates a USER, flushing all I/O and account information, except to allow any transfer in progress to be completed. All parameters are reset to the default settings and the control connection is left open. This is identical to the state in which a user finds himself immediately after the control connection is opened. A USER command may be expected to follow."
 	
 	self context username: nil; password: nil.
-	self status: 502.
+	self telnet status: 502.
 ]
 
 { #category : #'commands-file-actions' }
 FTPSession >> rest: aString [
-	self status: 502.
+	self telnet status: 502.
 ]
 
 { #category : #'commands-file-actions' }
@@ -216,103 +221,68 @@ FTPSession >> retr: aString [
 
 { #category : #'commands-file-transfer' }
 FTPSession >> rmd: aString [
-	self status: 502.
+	self telnet status: 502.
 ]
 
 { #category : #'commands-file-transfer' }
 FTPSession >> rnfr: aString [
-	self status: 502.
+	self telnet status: 502.
 ]
 
 { #category : #'commands-file-transfer' }
 FTPSession >> rnto: aString [
-	self status: 502.
-]
-
-{ #category : #'accessing-reading' }
-FTPSession >> server [
-	^ server
+	self telnet status: 502.
 ]
 
 { #category : #'private-server' }
 FTPSession >> sessionLoop [
-	[ self isConnected ]
-		whileTrue: [ self sessionLoopBody ].
-]
-
-{ #category : #'private-server' }
-FTPSession >> sessionLoopBody [
 	self withErrorHandlerDo: [
 		self withSessionHandlerDo: [
-			self execute: self stream nextLineCrLf ] ].
+			[ self isConnected ]
+				whileTrue: [ self execute: self telnet readLine ] ] ].
 ]
 
 { #category : #initialization }
-FTPSession >> setSocket: aSocket server: aServer [
-	socket := aSocket.
-	stream := SocketStream on: aSocket.
-	server := aServer.
+FTPSession >> setContext: aContext [
+	context := aContext
+]
+
+{ #category : #initialization }
+FTPSession >> setTelnet: aConnection [
+	telnet := aConnection
 ]
 
 { #category : #'commands-miscellaneous' }
 FTPSession >> site: aString [
-	self status: 502.
+	self telnet status: 502.
 ]
 
 { #category : #'commands-login' }
 FTPSession >> smnt: aString [
 	"This command allows the user to mount a different file system data structure without altering his login or accounting information. Transfer parameters are similarly unchanged. The argument is a pathname specifying a directory or other system dependent file group designator."
 	
-	self status: 502.
-]
-
-{ #category : #'accessing-reading' }
-FTPSession >> socket [
-	^ socket
+	self telnet status: 502.
 ]
 
 { #category : #actions }
 FTPSession >> start [
 	self isRunning ifTrue: [ ^ self ].
-	self createServer; writeWelcome.
+	self createServer.
+	self telnet statusReady.
 	self process resume.
 ]
 
 { #category : #'commands-informational' }
 FTPSession >> stat: aString [
-	self write: self context statistics.
-]
-
-{ #category : #status }
-FTPSession >> status: anInteger [
-	self status: anInteger description: 'OK'.
-]
-
-{ #category : #status }
-FTPSession >> status: aNumber description: aString [
-	Transcript show: '<< '; show: aNumber; space; show: aString; cr.
-	self stream print: aNumber; space; nextPutAll: aString; crlf; flush.
-]
-
-{ #category : #status }
-FTPSession >> statusError: aString [
-	self status: 500 description: aString.
-]
-
-{ #category : #status }
-FTPSession >> statusNotImplemented [
-	self status: 502 description: 'Command not implemented.'.
-]
-
-{ #category : #status }
-FTPSession >> statusOkay [
-	self status: 200 description: 'OK'.
+	self telnet writeLine: self context statistics.
 ]
 
 { #category : #actions }
 FTPSession >> stop [
 	self isRunning ifFalse: [ ^ self ].
 	self process terminate.
+	self telnet close.
+	self data close.
 ]
 
 { #category : #'commands-file-actions' }
@@ -322,12 +292,7 @@ FTPSession >> stor: aString [
 
 { #category : #'commands-file-actions' }
 FTPSession >> stou: aString [
-	self status: 502.
-]
-
-{ #category : #'accessing-reading' }
-FTPSession >> stream [
-	^ stream
+	self telnet status: 502.
 ]
 
 { #category : #'commands-parameters' }
@@ -337,7 +302,12 @@ FTPSession >> stru: aString [
 
 { #category : #'commands-informational' }
 FTPSession >> syst: aString [
-	self write: self context system.
+	self telnet writeLine: self context system.
+]
+
+{ #category : #'accessing-reading' }
+FTPSession >> telnet [
+	^ telnet
 ]
 
 { #category : #'commands-parameters' }
@@ -350,14 +320,14 @@ FTPSession >> user: aString [
 	"The argument field is a Telnet string identifying the user. The user identification is that which is required by the server for access to its file system. This command will normally be the first command transmitted by the user after the control connections are made (some servers may require this). Additional identification information in the form of a password and/or an account command may also be required by some servers. Servers may allow a new USER command to be entered at any point in order to change the access control and/or accounting information. This has the effect of flushing any user, password, and account information already supplied and beginning the login sequence again. All transfer parameters are unchanged and any file transfer in progress is completed under the old access control parameters."
 
 	self context username: aString.
-	self status: 200.
+	self telnet status: 200.
 ]
 
 { #category : #'private-handlers' }
 FTPSession >> withErrorHandlerDo: aBlock [
 	aBlock
 		on: Error
-		do: [ :ex | self statusError: ex messageText ].
+		do: [ :ex | self telnet status: 500 description: ex messageText ].
 ]
 
 { #category : #'private-handlers' }
@@ -365,19 +335,4 @@ FTPSession >> withSessionHandlerDo: aBlock [
 	FTPCurrentSession
 		use: self
 		during: aBlock.
-]
-
-{ #category : #writing }
-FTPSession >> write: aString [
-	| command |
-	Transcript show: '<< '; show: aString; cr.
-	command := aString readStream.
-	[ command atEnd ] whileFalse: [
-		self stream nextPutAll: (command upTo: Character cr).
-		self stream crlf; flush ].
-]
-
-{ #category : #writing }
-FTPSession >> writeWelcome [
-	self write: '220 SqueakFtp ready'.
 ]

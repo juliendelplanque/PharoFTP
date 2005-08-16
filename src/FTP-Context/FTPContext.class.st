@@ -38,11 +38,6 @@ FTPContext >> session [
 	^ FTPCurrentSession value.
 ]
 
-{ #category : #'initialize-release' }
-FTPContext >> setSession: aSession [
-	session := aSession
-]
-
 { #category : #'accessing-information' }
 FTPContext >> statistics [
 	^ SmalltalkImage current vmStatisticsReportString.

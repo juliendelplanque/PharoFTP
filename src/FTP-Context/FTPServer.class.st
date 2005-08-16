@@ -149,10 +149,12 @@ FTPServer >> createServer [
 
 { #category : #private }
 FTPServer >> createSession: aSocket [
-	FTPSession 
-		start: self context copy
-		socket: aSocket
-		server: self.
+	FTPSession new
+		setContext: self context copy;
+		setTelnet: (FTPConnection new
+			setServer: self;
+			setSocket: aSocket);
+		start.
 ]
 
 { #category : #'accessing-configuration' }
@@ -204,14 +206,14 @@ FTPServer >> destroyServer [
 
 { #category : #testing }
 FTPServer >> isConnected [
-	^self listener notNil
+	^ self listener notNil
 		and: [ self listener isValid ]
 		and: [ self listener isWaitingForConnection ].
 ]
 
 { #category : #testing }
 FTPServer >> isRunning [
-	^self process notNil.
+	^ self process notNil.
 ]
 
 { #category : #'accessing-readonly' }
