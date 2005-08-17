@@ -151,7 +151,7 @@ FTPServer >> createServer [
 FTPServer >> createSession: aSocket [
 	FTPSession new
 		setContext: self context copy;
-		setTelnet: (FTPConnection new
+		setConnection: (FTPConnection new
 			setServer: self;
 			setSocket: aSocket);
 		start.

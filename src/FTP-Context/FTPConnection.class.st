@@ -15,6 +15,41 @@ FTPConnection >> close [
 	self socket destroy.
 ]
 
+{ #category : #'state-conveniance' }
+FTPConnection >> error: aString [
+	"The request violated some internal parsing rule in the server."
+
+	self status: 500 description: aString.
+]
+
+{ #category : #'state-conveniance' }
+FTPConnection >> errorInvalidCommand [
+	"The server does not like the command."
+
+	self status: 500 description: 'Invalid Command'.
+]
+
+{ #category : #'state-conveniance' }
+FTPConnection >> errorInvalidParamter [
+	"The server does not like the format of the parameter."
+
+	self status: 501 description: 'Invalid Parameter Format'.
+]
+
+{ #category : #'state-conveniance' }
+FTPConnection >> errorUnsupportedCommand [
+	"The server recognized the verb but does not support it."
+
+	self status: 502 description: 'Unsupported command'.
+]
+
+{ #category : #'state-conveniance' }
+FTPConnection >> errorUnsupportedParameter [
+	"The server supports the verb but does not support the parameter."
+	
+	self status: 504 description: 'Unsupported parameter'.
+]
+
 { #category : #testing }
 FTPConnection >> isConnected [
 	^ self socket isValid and: [ self socket isConnected ].
@@ -25,7 +60,7 @@ FTPConnection >> isLogging [
 	^ true
 ]
 
-{ #category : #reading }
+{ #category : #'accessing-io' }
 FTPConnection >> readLine [
 	| line |
 	line := self stream upTo: Character lf.
@@ -63,11 +98,33 @@ FTPConnection >> status: anInteger [
 
 { #category : #state }
 FTPConnection >> status: anInteger description: aString [
-	self writeLine: (String streamContents: [ :s |
-		s print: anInteger; space; nextPutAll: aString ]).
+	self status: anInteger description: aString last: true.
 ]
 
 { #category : #state }
+FTPConnection >> status: anInteger description: aString last: aBoolean [
+	self writeLine: (String streamContents: [ :s |
+		s print: anInteger; nextPut: (aBoolean 
+			ifTrue: [ $  ]
+			ifFalse: [ $- ]).
+		s nextPutAll: aString ]).
+]
+
+{ #category : #state }
+FTPConnection >> status: anInteger descriptions: aCollection [
+	aCollection withIndexDo: [ :each :index |
+		self 
+			status: anInteger 
+			description: each 
+			last: aCollection size = index ].
+]
+
+{ #category : #'state-conveniance' }
+FTPConnection >> statusOkay [
+	self status: 200.
+]
+
+{ #category : #'state-conveniance' }
 FTPConnection >> statusReady [
 	self status: 220 description: 'SqueakFtp ready'.
 ]
@@ -77,13 +134,8 @@ FTPConnection >> stream [
 	^ stream
 ]
 
-{ #category : #writing }
+{ #category : #'accessing-io' }
 FTPConnection >> writeLine: aString [
-	self isLogging ifTrue: [ Transcript show: '<<'; space; show: aString; cr ].
+	self isLogging ifTrue: [ Transcript show: '<< '; show: aString; cr ].
 	self stream nextPutAll: aString; nextPutAll: String crlf; flush.
-]
-
-{ #category : #writing }
-FTPConnection >> writeLines: aCollection [
-	aCollection do: [ :each | self writeLine: each ].
 ]
