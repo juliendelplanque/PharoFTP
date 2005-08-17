@@ -1,6 +1,6 @@
 Class {
 	#name : #FTPFilesystemContext,
-	#superclass : #FTPAuthenticatedContext,
+	#superclass : #FTPContext,
 	#instVars : [
 		'parent',
 		'directory'

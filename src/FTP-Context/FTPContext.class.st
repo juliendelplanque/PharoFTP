@@ -14,11 +14,6 @@ FTPContext >> changeDirectoryToParent [
 	self subclassResponsibility.
 ]
 
-{ #category : #private }
-FTPContext >> errorInvalidCommand [
-	^self error: 'Invalid command'
-]
-
 { #category : #'accessing-information' }
 FTPContext >> help [
 	^ self class comment.
@@ -27,10 +22,6 @@ FTPContext >> help [
 { #category : #navigation }
 FTPContext >> listDirectory [
 	self subclassResponsibility.
-]
-
-{ #category : #actions }
-FTPContext >> password: aString [
 ]
 
 { #category : #accessing }
@@ -46,10 +37,6 @@ FTPContext >> statistics [
 { #category : #'accessing-information' }
 FTPContext >> system [
 	^ SmalltalkImage current vmVersion.
-]
-
-{ #category : #actions }
-FTPContext >> username: aString [
 ]
 
 { #category : #navigation }

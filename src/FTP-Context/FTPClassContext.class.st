@@ -1,16 +1,15 @@
 Class {
 	#name : #FTPClassContext,
-	#superclass : #FTPAuthenticatedContext,
+	#superclass : #FTPContext,
 	#instVars : [
-		'actualClass',
-		'actuaClass'
+		'actualClass'
 	],
 	#category : 'FTP-Context'
 }
 
 { #category : #accessing }
 FTPClassContext >> actualClass [ 
-	^ actualClass ifNil: [ actuaClass := ProtoObject ]
+	^ actualClass ifNil: [ actualClass := ProtoObject ]
 ]
 
 { #category : #accessing }
@@ -34,11 +33,11 @@ FTPClassContext >> changeDirectoryToParent [
 
 { #category : #navigation }
 FTPClassContext >> listDirectory [
-	self session transferWhile: [ :connection |
+	self session transferWith: [ :stream |
 		self actualClass subclasses do: [ :each |
-			connection writeLine: each name ].
+			stream nextPutAll: each name; crlf ].
 		self actualClass selectors do: [ :each |
-			connection writeLine: each ] ].
+			stream nextPutAll: each; crlf ] ].
 ]
 
 { #category : #'accessing-dynamic' }

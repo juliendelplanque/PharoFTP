@@ -5,9 +5,7 @@ Class {
 		'process',
 		'context',
 		'state',
-		'connection',
-		'ip',
-		'port'
+		'connection'
 	],
 	#category : 'FTP-Server'
 }
@@ -61,6 +59,7 @@ FTPSession >> context: aContext [
 
 { #category : #'private-server' }
 FTPSession >> createServer [
+	state := self defaultState.
 	process := Process 
 		forContext: [
 			[ self sessionLoop ]
@@ -76,6 +75,11 @@ FTPSession >> cwd: aString [
 	self connection status: 250.
 ]
 
+{ #category : #'accessing-configuration' }
+FTPSession >> defaultState [
+	^ FTPState new.
+]
+
 { #category : #'commands-file-transfer' }
 FTPSession >> dele: aString [
 	self self connection errorNotImplemented.
@@ -85,7 +89,7 @@ FTPSession >> dele: aString [
 FTPSession >> destroyServer [
 	self connection close.
 	self process terminate.
-	process := connection := nil.
+	process := connection := state := nil.
 ]
 
 { #category : #'private-server' }
@@ -143,8 +147,8 @@ FTPSession >> mode: aString [
 	"MODE is obsolete. The server should accept MODE S (in any combination of lowercase and uppercase) with code 200, and reject all other MODE attempts with code 504."
 	
 	aString asLowercase = 's'
-		ifTrue: [ self connection statusOkay ]
-		ifFalse: [ self connection errorUnsupportedParameter ].
+		ifTrue: [ ^ self connection statusOkay ].
+	self connection errorUnsupportedParameter.
 ]
 
 { #category : #'commands-file-transfer' }
@@ -163,24 +167,38 @@ FTPSession >> noop: aString [
 FTPSession >> pass: aString [
 	"The argument field is a Telnet string specifying the user's password.  This command must be immediately preceded by the user name command, and, for some sites, completes the user's identification for access control. Since password information is quite sensitive, it is desirable in general to 'mask' it or suppress typeout. It appears that the server has no foolproof way to achieve this. It is therefore the responsibility of the user-FTP process to hide the sensitive password information."
 	
-	self context password: aString.
+	self state password: aString.
 	self connection statusOkay.
 ]
 
 { #category : #'commands-parameters' }
 FTPSession >> pasv: aString [
-	self connection errorUnsupportedCommand.
+	aString notEmpty 
+		ifTrue: [ ^ self errorInArguments ].
+	self state 
+		passive: true;
+		ip: NetNameResolver localHostAddress;
+		port: 345.
+	self connection status: 227 description: (String streamContents: [ :stream |
+		self state ip do: [ :each | stream print: each; nextPut: $, ].
+		stream print: self state port // 256; nextPut: $,; print: self state port \\ 256 ]).
 ]
 
 { #category : #'commands-parameters' }
 FTPSession >> port: aString [
 	| numbers |
-	numbers := (aString findTokens: $,)
-		collect: [ :each | each asNumber ].
-	ip := ByteArray
-		with: numbers first with: numbers second
-		with: numbers third with: numbers fourth.
-	port := numbers fifth * 256 + numbers sixth.
+	numbers := aString findTokens: $,.
+	(numbers size = 6 and: [ numbers allSatisfy: [ :each | each isAllDigits ] ])
+		ifFalse: [ ^ self connection errorUnsupportedParameter ].
+	numbers := numbers collect: [ :each | each asInteger ].
+	(numbers allSatisfy: [ :each | each between: 0 and: 256 ])
+		ifFalse: [ ^ self connection errorInvalidParamter ].
+	self state
+		passive: false;
+		ip: (ByteArray
+			with: numbers first with: numbers second
+			with: numbers third with: numbers fourth);
+		port: numbers fifth * 256 + numbers sixth.
 	self connection statusOkay.
 ]
 
@@ -207,7 +225,7 @@ FTPSession >> quit: aString [
 FTPSession >> rein: aString [
 	"This command terminates a USER, flushing all I/O and account information, except to allow any transfer in progress to be completed. All parameters are reset to the default settings and the control connection is left open. This is identical to the state in which a user finds himself immediately after the control connection is opened. A USER command may be expected to follow."
 	
-	self context username: nil; password: nil.
+	self state: self defaultState.
 	self connection statusOkay.
 ]
 
@@ -279,6 +297,16 @@ FTPSession >> stat: aString [
 	self connection writeLine: self context statistics.
 ]
 
+{ #category : #accessing }
+FTPSession >> state [
+	^ state
+]
+
+{ #category : #accessing }
+FTPSession >> state: aState [
+	state := aState
+]
+
 { #category : #actions }
 FTPSession >> stop [
 	self isRunning ifFalse: [ ^ self ].
@@ -301,8 +329,8 @@ FTPSession >> stru: aString [
 	"STRU is obsolete. The server should accept STRU F (in any combination of lowercase and uppercase) with code 200, and reject all other STRU attempts with code 504."
 	
 	aString asLowercase = 'f'
-		ifTrue: [ self connection statusOkay ]
-		ifFalse: [ self connection errorUnsupportedParameter ].
+		ifTrue: [ ^ self connection statusOkay ].
+	self connection errorUnsupportedParameter.
 ]
 
 { #category : #'commands-informational' }
@@ -311,27 +339,50 @@ FTPSession >> syst: aString [
 ]
 
 { #category : #'private-server' }
-FTPSession >> transferWhile: aBlock [
-	connection := FTPConnection new
-		setServer: self connection server;
-		setSocket: (Socket newTCP
-			connectTo: ip port: port;
-			yourself);
-		yourself.
-	[ aBlock value: connection ]
-		ensure: [ connection close ].
+FTPSession >> transferWith: aBlock [
+	| stream |
+	stream := SocketStream on: Socket newTCP.
+	self state passive
+		ifTrue: [ self transferWith: aBlock passive: stream ]
+		ifFalse: [ self transferWith: aBlock active: stream ].
+
+]
+
+{ #category : #'private-server' }
+FTPSession >> transferWith: aBlock active: aStream [
+	aStream socket
+		connectTo: self state ip
+		port: self state port.
+	[ aBlock value: aStream ]
+		ensure: [ aStream close ].
+]
+
+{ #category : #'private-server' }
+FTPSession >> transferWith: aBlock passive: aStream [
+	self halt.
+	aStream socket listenOn: self state port.
+	(aStream waitForConnectionUntil: 5) 
+		ifFalse: [ ^ self ].
+	[ aBlock value: aStream ]
+		ensure: [ aStream close ].
 ]
 
 { #category : #'commands-parameters' }
 FTPSession >> type: aString [
-	self halt.
+	aString asLowercase = 'a' ifTrue: [ 
+		self state binary: false.
+		^ self connection statusOkay ].
+	aString asLowercase = 'i' ifTrue: [
+		self state binary: true.
+		^ self connection statusOkay ].
+	self connection errorInvalidParamter.
 ]
 
 { #category : #'commands-login' }
 FTPSession >> user: aString [
 	"The argument field is a Telnet string identifying the user. The user identification is that which is required by the server for access to its file system. This command will normally be the first command transmitted by the user after the control connections are made (some servers may require this). Additional identification information in the form of a password and/or an account command may also be required by some servers. Servers may allow a new USER command to be entered at any point in order to change the access control and/or accounting information. This has the effect of flushing any user, password, and account information already supplied and beginning the login sequence again. All transfer parameters are unchanged and any file transfer in progress is completed under the old access control parameters."
 
-	self context username: aString.
+	self state username: aString.
 	self connection statusOkay.
 ]
 
