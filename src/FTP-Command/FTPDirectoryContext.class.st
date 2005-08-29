@@ -34,13 +34,8 @@ FTPDirectoryContext >> help [
 ]
 
 { #category : #testing }
-FTPDirectoryContext >> isDirectoryContext [
+FTPDirectoryContext >> isDirectory [
 	^ true
-]
-
-{ #category : #accessing }
-FTPDirectoryContext >> size [
-	^ 0
 ]
 
 { #category : #'accessing-information' }

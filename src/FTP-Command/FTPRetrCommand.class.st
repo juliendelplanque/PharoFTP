@@ -22,7 +22,7 @@ FTPRetrCommand class >> command [
 
 { #category : #processing }
 FTPRetrCommand >> execute [
-	self checkTarget: #isFileContext.
+	self checkTarget: #isFile.
 	(FTPResponse code: 150)
 		writeOn: self connection stream.
 	self session withStreamDo: [ :stream |

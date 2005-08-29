@@ -19,19 +19,73 @@ FTPContext >> find: aCollection [
 	self subclassResponsibility.
 ]
 
+{ #category : #actions }
+FTPContext >> flush [
+]
+
+{ #category : #'accessing-permissions' }
+FTPContext >> groupName [
+	^ 'ftp'
+]
+
 { #category : #testing }
 FTPContext >> hasParent [
 	^ self parent notNil.
 ]
 
 { #category : #testing }
-FTPContext >> isDirectoryContext [
-	^ false
+FTPContext >> isDirectory [
+	self subclassResponsibility.
 ]
 
 { #category : #testing }
-FTPContext >> isFileContext [
-	^ false
+FTPContext >> isFile [
+	^ self isDirectory not.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> isGroupExecutable [
+	^ self isUserExecutable.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> isGroupReadable [
+	^ self isUserReadable.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> isGroupWriteable [
+	^ self isUserWriteable.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> isOtherExecutable [
+	^ self isGroupExecutable.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> isOtherReadable [
+	^ self isGroupReadable.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> isOtherWriteable [
+	^ self isGroupWriteable.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> isUserExecutable [
+	^ self isDirectory.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> isUserReadable [
+	^ true.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> isUserWriteable [
+	^ self isFile.
 ]
 
 { #category : #convenience }
@@ -70,11 +124,10 @@ FTPContext >> path [
 { #category : #convenience }
 FTPContext >> pathString [
 	^ String streamContents: [ :stream |
-		stream nextPut: $"; nextPut: $/.
+		stream nextPut: $/.
 		self path allButFirst
 			do: [ :each | stream nextPutAll: each name ]
-			separatedBy: [ stream nextPut: $/ ].
-		stream nextPut: $" ].
+			separatedBy: [ stream nextPut: $/ ] ].
 ]
 
 { #category : #'accessing-dynamic' }
@@ -96,10 +149,15 @@ FTPContext >> setParent: aContext [
 
 { #category : #accessing }
 FTPContext >> size [
-	self subclassResponsibility.
+	^ 0
 ]
 
 { #category : #accessing }
 FTPContext >> timestamp [
-	self subclassResponsibility.
+	^ TimeStamp now.
+]
+
+{ #category : #'accessing-permissions' }
+FTPContext >> userName [
+	^ 'ftp'
 ]

@@ -14,6 +14,7 @@ FTPCwdCommand class >> command [
 
 { #category : #processing }
 FTPCwdCommand >> execute [
-	self checkTarget: #isDirectoryContext.
-	self context: self target; return: FTPResponse okay.
+	self checkTarget: #isDirectory.
+	self context: self target.
+	self return: FTPResponse okay.
 ]

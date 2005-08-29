@@ -20,8 +20,8 @@ FTPFileContext >> find: aCollection [
 ]
 
 { #category : #testing }
-FTPFileContext >> isFileContext [
-	^ true
+FTPFileContext >> isDirectory [
+	^ false
 ]
 
 { #category : #'accessing-dynamic' }

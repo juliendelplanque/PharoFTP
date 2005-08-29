@@ -3,7 +3,8 @@ Class {
 	#superclass : #FTPFileContext,
 	#instVars : [
 		'actualClass',
-		'selector'
+		'selector',
+		'stamp'
 	],
 	#category : 'FTP-Context-Image'
 }
@@ -28,6 +29,11 @@ FTPMethodContext >> contents: aString [
 	self actualClass compile: aString.
 ]
 
+{ #category : #'testing-permissions' }
+FTPMethodContext >> isUserExecutable [
+	^ self actualClass isMeta.
+]
+
 { #category : #'accessing-dynamic' }
 FTPMethodContext >> name [
 	^ '#' , self selector asString.
@@ -43,7 +49,25 @@ FTPMethodContext >> selector: aSelector [
 	selector := aSelector
 ]
 
+{ #category : #private }
+FTPMethodContext >> stamp [
+	stamp isNil ifTrue: [
+		stamp := VersionsBrowser
+			timeStampFor: self selector 
+			class: self actualClass 
+			reverseOrdinal: 1 ].
+	^ stamp.
+]
+
 { #category : #'accessing-dynamic' }
 FTPMethodContext >> timestamp [
-	^ VersionsBrowser timeStampFor: self selector class: self actualClass reverseOrdinal: 1.
+	^ [ TimeStamp fromString: (self stamp copyAfter: Character space) ]
+		ifError: [ super timestamp ].
+]
+
+{ #category : #'accessing-permissions' }
+FTPMethodContext >> userName [
+	^ self stamp isEmpty
+		ifFalse: [ self stamp copyUpTo: Character space ]
+		ifTrue: [ super userName ].
 ]

@@ -2,7 +2,8 @@ Class {
 	#name : #FTPClassContext,
 	#superclass : #FTPDirectoryContext,
 	#instVars : [
-		'actualClass'
+		'actualClass',
+		'children'
 	],
 	#category : 'FTP-Context-Image'
 }
@@ -19,26 +20,32 @@ FTPClassContext >> actualClass: aClass [
 
 { #category : #'accessing-dynamic' }
 FTPClassContext >> children [
-	^ Array streamContents: [ :stream |
-		self actualClass subclasses do: [ :each |
-			stream nextPut: ((FTPClassContext parent: self)
-				actualClass: each;
-				yourself) ].
-		self actualClass selectors do: [ :each |
-			stream nextPut: ((FTPMethodContext parent: self)
-				actualClass: self actualClass;
-				selector: each;
-				yourself) ] ].
+	^ children ifNil: [
+		children := Array streamContents: [ :stream |
+			self actualClass subclasses do: [ :each |
+				stream nextPut: ((FTPClassContext parent: self)
+					actualClass: each;
+					yourself) ].
+			self actualClass selectors do: [ :each |
+				stream nextPut: ((FTPMethodContext parent: self)
+					actualClass: self actualClass;
+					selector: each;
+					yourself) ].
+			self actualClass class selectors do: [ :each |
+				stream nextPut: ((FTPMethodContext parent: self)
+					actualClass: self actualClass class;
+					selector: each;
+					yourself) ] ] ].
+]
+
+{ #category : #actions }
+FTPClassContext >> flush [	
+	children := nil.
 ]
 
 { #category : #'accessing-dynamic' }
 FTPClassContext >> name [
 	^ self actualClass name.
-]
-
-{ #category : #'accessing-dynamic' }
-FTPClassContext >> timestamp [
-	^ TimeStamp now.
 ]
 
 { #category : #events }

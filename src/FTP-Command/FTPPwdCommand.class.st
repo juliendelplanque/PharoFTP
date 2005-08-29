@@ -11,5 +11,7 @@ FTPPwdCommand class >> command [
 
 { #category : #processing }
 FTPPwdCommand >> execute [
-	self return: (FTPResponse code: 257 line: self context pathString).
+	self return: (FTPResponse code: 257 line: (String streamContents: [ :stream |
+		stream nextPut: $"; nextPutAll: self context pathString; nextPut: $".
+		stream nextPutAll: ' is current directory' ])).
 ]

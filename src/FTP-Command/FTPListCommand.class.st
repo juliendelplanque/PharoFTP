@@ -1,6 +1,6 @@
 Class {
 	#name : #FTPListCommand,
-	#superclass : #FTPNlstCommand,
+	#superclass : #FTPListingCommand,
 	#category : 'FTP-Command-Navigation'
 }
 
@@ -9,13 +9,7 @@ FTPListCommand class >> command [
 	^ 'LIST' 
 ]
 
-{ #category : #printing }
-FTPListCommand >> printChild: aContext on: aStream [
-	aStream nextPut: $+; nextPut: $s; print: aContext size.
-	aContext isDirectoryContext
-		ifTrue: [ aStream nextPutAll: ',/' ].
-	aContext isFileContext
-		ifTrue: [ aStream nextPutAll: ',r' ].
-	aStream nextPut: Character tab.
-	super printChild: aContext on: aStream.
+{ #category : #accessing }
+FTPListCommand >> selectors [
+	^ #( printPermission:on: printReferences:on: printUser:on: printGroup:on: printSize:on: printTimestamp:on: printName:on: ).
 ]
