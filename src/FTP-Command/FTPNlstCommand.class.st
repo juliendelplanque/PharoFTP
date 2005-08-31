@@ -10,6 +10,11 @@ FTPNlstCommand class >> command [
 ]
 
 { #category : #accessing }
+FTPNlstCommand >> padding [
+	^ #( none ).
+]
+
+{ #category : #accessing }
 FTPNlstCommand >> selectors [
-	^ #( printName:on: ).
+	^ #( nameOf: ).
 ]

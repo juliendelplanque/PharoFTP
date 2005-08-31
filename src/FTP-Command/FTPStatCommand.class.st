@@ -3,7 +3,7 @@ A STAT request asks for human-readable information about the server's status. Th
 "
 Class {
 	#name : #FTPStatCommand,
-	#superclass : #FTPCommand,
+	#superclass : #FTPInformationCommand,
 	#category : 'FTP-Command-Information'
 }
 
@@ -12,7 +12,12 @@ FTPStatCommand class >> command [
 	^ 'STAT'
 ]
 
-{ #category : #processing }
-FTPStatCommand >> execute [
-	self return: (FTPResponse code: 211 string: self context statistics).
+{ #category : #accessing }
+FTPStatCommand >> contents [
+	^ self context statusString.
+]
+
+{ #category : #accessing }
+FTPStatCommand >> status [
+	^ 211
 ]

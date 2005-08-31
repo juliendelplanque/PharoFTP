@@ -3,7 +3,7 @@ A HELP request asks for human-readable information from the server. The server m
 "
 Class {
 	#name : #FTPHelpCommand,
-	#superclass : #FTPCommand,
+	#superclass : #FTPInformationCommand,
 	#category : 'FTP-Command-Information'
 }
 
@@ -12,7 +12,12 @@ FTPHelpCommand class >> command [
 	^ 'HELP'
 ]
 
-{ #category : #processing }
-FTPHelpCommand >> execute [
-	self return: (FTPResponse code: 214 string: self context help).
+{ #category : #accessing }
+FTPHelpCommand >> contents [
+	^ self context helpString.
+]
+
+{ #category : #accessing }
+FTPHelpCommand >> status [
+	^ 214
 ]

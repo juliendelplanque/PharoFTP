@@ -21,12 +21,13 @@ FTPConnection class >> tcp [
 
 { #category : #actions }
 FTPConnection >> close [
-	self stream close.
+	self isConnected 
+		ifTrue: [ self stream close ].
 ]
 
 { #category : #testing }
 FTPConnection >> isConnected [
-	^ self socket isValid and: [ self socket isConnected ].
+	^ self stream isConnected.
 ]
 
 { #category : #actions }

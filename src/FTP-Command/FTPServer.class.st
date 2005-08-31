@@ -152,7 +152,7 @@ FTPServer >> destroySession: aSession [
 
 { #category : #'private-stopping' }
 FTPServer >> destroySessions [
-	self sessions do: [ :each | each close ].
+	self sessions do: [ :each | each connection close ].
 	sessions := nil.
 ]
 

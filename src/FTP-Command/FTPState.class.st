@@ -2,6 +2,7 @@ Class {
 	#name : #FTPState,
 	#superclass : #Object,
 	#instVars : [
+		'account',
 		'username',
 		'password',
 		'ip',
@@ -11,6 +12,16 @@ Class {
 	],
 	#category : 'FTP-Server'
 }
+
+{ #category : #'accessing-authentication' }
+FTPState >> account [
+	^ account
+]
+
+{ #category : #'accessing-authentication' }
+FTPState >> account: aString [
+	account := aString
+]
 
 { #category : #'accessing-transfer' }
 FTPState >> binary [
@@ -44,7 +55,7 @@ FTPState >> isPassive [
 
 { #category : #'accessing-transfer' }
 FTPState >> passive [
-	^ passive ifFalse: [ passive := false ].
+	^ passive ifNil: [ passive := false ].
 ]
 
 { #category : #'accessing-transfer' }

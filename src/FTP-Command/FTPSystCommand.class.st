@@ -3,7 +3,7 @@ A SYST request asks for information about the server's operating system. The ser
 "
 Class {
 	#name : #FTPSystCommand,
-	#superclass : #FTPCommand,
+	#superclass : #FTPInformationCommand,
 	#category : 'FTP-Command-Information'
 }
 
@@ -12,7 +12,12 @@ FTPSystCommand class >> command [
 	^ 'SYST'
 ]
 
-{ #category : #processing }
-FTPSystCommand >> execute [
-	self return: (FTPResponse code: 215 string: self context system).
+{ #category : #accessing }
+FTPSystCommand >> contents [
+	^ self context systemString.
+]
+
+{ #category : #accessing }
+FTPSystCommand >> status [
+	^ 215
 ]

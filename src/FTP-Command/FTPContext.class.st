@@ -15,16 +15,33 @@ FTPContext class >> parent: aContext [
 ]
 
 { #category : #convenience }
+FTPContext >> at: aString ifAbsent: aBlock [
+	self isDirectory
+		ifFalse: [ self shouldNotImplement ].
+	^ self children 
+		detect: [ :each | each name = aString ]
+		ifNone: aBlock.
+]
+
+{ #category : #accessing }
+FTPContext >> children [
+	" Return a collection of children of the receiver, or nil if this is supposed to be a folder. "
+
+	^ nil
+]
+
+{ #category : #convenience }
 FTPContext >> find: aCollection [
-	self subclassResponsibility.
+	aCollection isEmpty 
+		ifTrue: [ ^ self ].
+	^ (self at: aCollection first ifAbsent: [ ^ nil ])
+		find: aCollection allButFirst.
 ]
 
-{ #category : #actions }
-FTPContext >> flush [
-]
-
-{ #category : #'accessing-permissions' }
+{ #category : #'accessing-strings' }
 FTPContext >> groupName [
+	" Return the name of the group owning the receiver. "
+	
 	^ 'ftp'
 ]
 
@@ -33,9 +50,28 @@ FTPContext >> hasParent [
 	^ self parent notNil.
 ]
 
+{ #category : #'accessing-strings' }
+FTPContext >> helpString [
+	" Return a help text of the current context, defaults to a human readable list of possible commands. "
+	
+	| commands |
+	commands := Array streamContents: [ :stream |
+		FTPCommand withAllSubclassesDo: [ :each |
+			each command notNil 
+				ifTrue: [ stream nextPut: each command ] ] ].
+	^ String streamContents: [ :stream |
+		stream nextPutAll: 'The following commands are recognized:'; cr.
+		commands sort withIndexDo: [ :each :index |
+			stream nextPutAll: (each
+				padded: #right to: 8
+				with: Character space).
+			index \\ 7 == 0 
+				ifTrue: [ stream cr ] ] ].
+]
+
 { #category : #testing }
 FTPContext >> isDirectory [
-	self subclassResponsibility.
+	^ self children notNil.
 ]
 
 { #category : #testing }
@@ -106,23 +142,31 @@ FTPContext >> lookup: aString [
 
 { #category : #accessing }
 FTPContext >> name [
-	self subclassResponsibility.
+	" Return the file-name/label of the receiver. "
+	
+	^ self asString.
 ]
 
 { #category : #accessing }
 FTPContext >> parent [
+	" Return the parent of the reciever. "
+
 	^ parent
 ]
 
 { #category : #'accessing-dynamic' }
 FTPContext >> path [
+	" Return the context stack from the root up and including the receiver. "
+	
 	^ self hasParent
-		ifTrue: [ self parent path add: self; yourself ]
-		ifFalse: [ OrderedCollection with: self ].
+		ifFalse: [ OrderedCollection with: self ]
+		ifTrue: [ self parent path add: self; yourself ].
 ]
 
-{ #category : #convenience }
+{ #category : #'accessing-strings' }
 FTPContext >> pathString [
+	" Return the path of the receiver as a string. "
+
 	^ String streamContents: [ :stream |
 		stream nextPut: $/.
 		self path allButFirst
@@ -130,15 +174,26 @@ FTPContext >> pathString [
 			separatedBy: [ stream nextPut: $/ ] ].
 ]
 
+{ #category : #accessing }
+FTPContext >> references [
+	" Return the number of references pointing to the receiver. "
+	
+	^ 1
+]
+
 { #category : #'accessing-dynamic' }
 FTPContext >> root [
+	" Return the root context in the receiver's stack. "
+
 	^ self hasParent
-		ifTrue: [ self parent root ]
-		ifFalse: [ self ].
+		ifFalse: [ self ]
+		ifTrue: [ self parent root ].
 ]
 
 { #category : #'accessing-dynamic' }
 FTPContext >> session [
+	" Return the current session or nil. "
+
 	^ FTPCurrentSession value.
 ]
 
@@ -149,15 +204,55 @@ FTPContext >> setParent: aContext [
 
 { #category : #accessing }
 FTPContext >> size [
+	" Return the size in bytes of the receiver. "
+	
 	^ 0
+]
+
+{ #category : #'accessing-strings' }
+FTPContext >> statusString [
+	" Return the status of the server, defaults to a human readable list of status values. "
+	
+	| state |
+	state := self session state.
+	^ String streamContents: [ :stream |
+		state username notNil 
+			ifTrue: [ stream nextPutAll: 'Username: '; nextPutAll: state username; cr ].
+		stream nextPutAll: 'Type: '; nextPutAll: (state isBinary
+			ifTrue: [ 'binary' ] ifFalse: [ 'ascii' ]); cr.
+		stream nextPutAll: 'Transfer: '; nextPutAll: (state isPassive
+			ifTrue: [ 'passive' ] ifFalse: [ 'active' ]); cr ].
+]
+
+{ #category : #'accessing-strings' }
+FTPContext >> systemString [
+	" Return the system name of name of the server, defaults to a human readable string. "
+	
+	^ SmalltalkImage current vmVersion.
 ]
 
 { #category : #accessing }
 FTPContext >> timestamp [
+	" Return a timestamp of the receiver. "
+
 	^ TimeStamp now.
 ]
 
-{ #category : #'accessing-permissions' }
+{ #category : #events }
+FTPContext >> unknownRequest: aRequest [
+	" This message will be sent for any unknown command, sublcasses might override the default implementation to handle additional user defined commands. "
+
+	self session returnResponse: FTPResponse invalidCommand.
+]
+
+{ #category : #events }
+FTPContext >> updateAuthentication: aRequest [
+	" This message will be sent whenever a new username or password is given. "
+]
+
+{ #category : #'accessing-strings' }
 FTPContext >> userName [
+	" Return the name of the user owning the receiver. "
+	
 	^ 'ftp'
 ]

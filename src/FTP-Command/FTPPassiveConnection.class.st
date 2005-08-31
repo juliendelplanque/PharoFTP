@@ -16,13 +16,17 @@ FTPPassiveConnection class >> on: aSocket do: aBlock [
 
 { #category : #actions }
 FTPPassiveConnection >> close [
-	process terminate.
 	super close.
+	self process isTerminated 
+		ifFalse: [ self process terminate ].
+]
+
+{ #category : #accessing }
+FTPPassiveConnection >> process [
+	^ process
 ]
 
 { #category : #actions }
 FTPPassiveConnection >> run: aBlock [
-	process := [ 
-		self socket waitForConnectionFor: 60.
-		aBlock ensure: [ self close ] ] fork.
+	process := [ aBlock ensure: [ self close ] ] fork.
 ]

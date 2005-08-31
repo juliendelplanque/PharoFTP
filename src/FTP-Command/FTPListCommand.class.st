@@ -10,6 +10,11 @@ FTPListCommand class >> command [
 ]
 
 { #category : #accessing }
+FTPListCommand >> padding [
+	^ #( none left right right left left none ).
+]
+
+{ #category : #accessing }
 FTPListCommand >> selectors [
-	^ #( printPermission:on: printReferences:on: printUser:on: printGroup:on: printSize:on: printTimestamp:on: printName:on: ).
+	^ #( permissionsOf: referencesOf: userOf: groupOf: sizeOf: timestampOf: nameOf: ).
 ]

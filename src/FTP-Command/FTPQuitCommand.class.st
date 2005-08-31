@@ -16,5 +16,5 @@ FTPQuitCommand class >> command [
 
 { #category : #processing }
 FTPQuitCommand >> execute [
-	self session connection close.
+	self session close.
 ]
