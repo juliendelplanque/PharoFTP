@@ -37,16 +37,16 @@ FTPContext >> children [
 	^ nil
 ]
 
-{ #category : #private }
+{ #category : #'accessing-contents' }
 FTPContext >> contents [
-	" Return the content of the receiver, for non-optimized cases just override this method. "
+	" Return the contents of the receiver, for non-optimized cases override this method, else have a look at #get:startingAt:. "
 
 	^ String new.
 ]
 
-{ #category : #private }
+{ #category : #'accessing-contents' }
 FTPContext >> contents: aString [
-	" Set the content of the receiver, for non-optimized cases override this method. "
+	" Set the content of the receiver, for non-optimized cases override this method, else have a look at #put:startingAt:. "
 ]
 
 { #category : #convenience }
@@ -257,7 +257,7 @@ FTPContext >> setParent: aContext [
 FTPContext >> size [
 	" Return the size in bytes of the receiver. "
 	
-	^ 0
+	^ self contents size.
 ]
 
 { #category : #'accessing-strings' }

@@ -26,7 +26,7 @@ FTPFileSystemDirectory >> children [
 					yourself ] ].
 ]
 
-{ #category : #'accessing-internal' }
+{ #category : #accessing }
 FTPFileSystemDirectory >> directory [
 	^ self owner directoryNamed: self name.
 ]

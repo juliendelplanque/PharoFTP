@@ -24,6 +24,13 @@ FTPDispatcher >> initialize [
 	children := Set new.
 ]
 
+{ #category : #copying }
+FTPDispatcher >> postCopy [
+	super postCopy.
+	children := self children 
+		collect: [ :each | each copy setParent: self ].
+]
+
 { #category : #changing }
 FTPDispatcher >> remove: aContext [
 	^ children remove: aContext.

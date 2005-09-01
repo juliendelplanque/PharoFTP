@@ -4,7 +4,7 @@ Class {
 	#category : 'FTP-Context'
 }
 
-{ #category : #'accessing-internal' }
+{ #category : #accessing }
 FTPFileSystemFile >> directory [
 	^ self owner.
 ]
