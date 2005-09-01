@@ -1,56 +1,50 @@
 Class {
 	#name : #FTPClassContext,
-	#superclass : #FTPContext,
+	#superclass : #FTPSmalltalkContext,
 	#instVars : [
-		'actualClass',
 		'children'
 	],
-	#category : 'FTP-Context-Image'
+	#category : 'FTP-Context'
 }
 
 { #category : #accessing }
-FTPClassContext >> actualClass [ 
-	^ actualClass ifNil: [ actualClass := ProtoObject ].
-]
-
-{ #category : #accessing }
-FTPClassContext >> actualClass: aClass [
-	actualClass := aClass
-]
-
-{ #category : #'accessing-dynamic' }
 FTPClassContext >> children [
 	^ children ifNil: [
 		children := Array streamContents: [ :stream |
 			self actualClass subclasses do: [ :each |
 				stream nextPut: ((FTPClassContext parent: self)
-					actualClass: each;
+					setActualClass: each;
 					yourself) ].
 			self actualClass selectors do: [ :each |
 				stream nextPut: ((FTPMethodContext parent: self)
-					actualClass: self actualClass;
-					selector: each;
+					setActualClass: self actualClass;
+					setSelector: each;
 					yourself) ].
 			self actualClass class selectors do: [ :each |
 				stream nextPut: ((FTPMethodContext parent: self)
-					actualClass: self actualClass class;
-					selector: each;
+					setActualClass: self actualClass class;
+					setSelector: each;
 					yourself) ] ] ].
 ]
 
-{ #category : #actions }
-FTPClassContext >> flush [	
+{ #category : #events }
+FTPClassContext >> flush [
+	super flush.
 	children := nil.
 ]
 
-{ #category : #'accessing-dynamic' }
+{ #category : #accessing }
 FTPClassContext >> name [
-	^ self actualClass name.
+	^ self actualClass name asString.
 ]
 
 { #category : #events }
 FTPClassContext >> unknownRequest: aRequest [
-	aRequest command = 'EVAL'
-		ifTrue: [ self session return: (FTPResponse code: 200 string: (Compiler evaluate: aRequest argument) asString) ].
+	aRequest command = 'EVAL' ifTrue: [ 
+		self session return: (FTPResponse 
+			code: 200 string: (Compiler 
+				evaluate: aRequest argument 
+				for: self actualClass 
+				logged: false) asString) ].
 	super unknownRequest: aRequest. 
 ]

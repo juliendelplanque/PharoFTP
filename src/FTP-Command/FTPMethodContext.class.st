@@ -1,32 +1,27 @@
 Class {
 	#name : #FTPMethodContext,
-	#superclass : #FTPContext,
+	#superclass : #FTPSmalltalkContext,
 	#instVars : [
-		'actualClass',
 		'selector',
 		'stamp'
 	],
-	#category : 'FTP-Context-Image'
+	#category : 'FTP-Context'
 }
 
-{ #category : #accessing }
-FTPMethodContext >> actualClass [
-	^ actualClass
-]
-
-{ #category : #accessing }
-FTPMethodContext >> actualClass: aClass [
-	actualClass := aClass
-]
-
-{ #category : #accessing }
+{ #category : #'accessing-contents' }
 FTPMethodContext >> contents [
 	^ self actualClass sourceCodeAt: self selector.
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing-contents' }
 FTPMethodContext >> contents: aString [
 	self actualClass compile: aString.
+]
+
+{ #category : #events }
+FTPMethodContext >> flush [
+	super flush.
+	stamp := nil.
 ]
 
 { #category : #'testing-permissions' }
@@ -34,9 +29,9 @@ FTPMethodContext >> isUserExecutable [
 	^ self actualClass isMeta.
 ]
 
-{ #category : #'accessing-dynamic' }
+{ #category : #accessing }
 FTPMethodContext >> name [
-	^ '#' , self selector asString.
+	^ self selector asString.
 ]
 
 { #category : #accessing }
@@ -44,8 +39,8 @@ FTPMethodContext >> selector [
 	^ selector
 ]
 
-{ #category : #accessing }
-FTPMethodContext >> selector: aSelector [
+{ #category : #initialization }
+FTPMethodContext >> setSelector: aSelector [
 	selector := aSelector
 ]
 
@@ -59,13 +54,13 @@ FTPMethodContext >> stamp [
 	^ stamp.
 ]
 
-{ #category : #'accessing-dynamic' }
+{ #category : #accessing }
 FTPMethodContext >> timestamp [
 	^ [ TimeStamp fromString: (self stamp copyAfter: Character space) ]
 		ifError: [ super timestamp ].
 ]
 
-{ #category : #'accessing-permissions' }
+{ #category : #accessing }
 FTPMethodContext >> userName [
 	^ self stamp isEmpty
 		ifFalse: [ self stamp copyUpTo: Character space ]
