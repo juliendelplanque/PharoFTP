@@ -3,8 +3,8 @@ A CWD request has a nonempty parameter giving an encoded pathname. It asks the s
 "
 Class {
 	#name : #FTPCwdCommand,
-	#superclass : #FTPFileCommand,
-	#category : 'FTP-Command-Navigation'
+	#superclass : #FTPCommand,
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }
@@ -14,7 +14,6 @@ FTPCwdCommand class >> command [
 
 { #category : #processing }
 FTPCwdCommand >> execute [
-	self checkTarget: #isDirectory.
-	self context: self target.
+	self context: (self findContext: self request argument type: #directory).
 	self return: FTPResponse okay.
 ]

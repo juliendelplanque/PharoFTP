@@ -28,5 +28,6 @@ FTPPassiveConnection >> process [
 
 { #category : #actions }
 FTPPassiveConnection >> run: aBlock [
-	process := [ aBlock ensure: [ self close ] ] fork.
+	process := [ super run: aBlock ] 
+		fork.
 ]

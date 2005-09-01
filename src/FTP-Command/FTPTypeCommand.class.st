@@ -9,7 +9,7 @@ L 8 - Turn the binary flag on.
 Class {
 	#name : #FTPTypeCommand,
 	#superclass : #FTPCommand,
-	#category : 'FTP-Command-Settings'
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }

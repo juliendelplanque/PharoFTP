@@ -4,7 +4,7 @@ STRU is obsolete. The server should accept STRU F (in any combination of lowerca
 Class {
 	#name : #FTPStruCommand,
 	#superclass : #FTPCommand,
-	#category : 'FTP-Command-Settings'
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }
@@ -14,7 +14,7 @@ FTPStruCommand class >> command [
 
 { #category : #processing }
 FTPStruCommand >> execute [
-	self session returnResponse: (self request normalized = 'F'
+	self return: (self request normalized = 'F'
 		ifFalse: [ FTPResponse unsupportedParameter ]
 		ifTrue: [ FTPResponse okay ]).
 ]

@@ -1,7 +1,7 @@
 Class {
 	#name : #FTPListCommand,
 	#superclass : #FTPListingCommand,
-	#category : 'FTP-Command-Navigation'
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }

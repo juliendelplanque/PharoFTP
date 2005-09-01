@@ -28,17 +28,12 @@ FTPCommand class >> in: aSession for: aRequest ifAbsent: aBlock [
 		yourself.
 ]
 
-{ #category : #'accessing-dynamic' }
-FTPCommand >> connection [
-	^ self session connection.
-]
-
-{ #category : #'accessing-dynamic' }
+{ #category : #accessing }
 FTPCommand >> context [
 	^ self session context.
 ]
 
-{ #category : #'accessing-dynamic' }
+{ #category : #accessing }
 FTPCommand >> context: aContext [
 	^ self session context: aContext.
 ]
@@ -48,22 +43,43 @@ FTPCommand >> execute [
 	self subclassResponsibility.
 ]
 
-{ #category : #accessing }
+{ #category : #conveniance }
+FTPCommand >> findContext: aString [
+	^ self findContext: aString type: nil.
+]
+
+{ #category : #conveniance }
+FTPCommand >> findContext: aString type: aSelector [
+	| target invalid |
+	target := self context lookup: aString.
+	invalid := target isNil 
+		or: [ aSelector == #file and: [ target isFile not ] ]
+		or: [ aSelector == #directory and: [ target isDirectory not ] ].
+	invalid ifTrue: [ self return: FTPResponse notFound ].
+	^ target.
+]
+
+{ #category : #'accessing-readonly' }
 FTPCommand >> request [
 	^ request
 ]
 
-{ #category : #commands }
-FTPCommand >> return: aResponse [
-	^ self session returnResponse: aResponse.
+{ #category : #actions }
+FTPCommand >> response: aResponse [
+	self session response: aResponse.
 ]
 
-{ #category : #'accessing-dynamic' }
+{ #category : #actions }
+FTPCommand >> return: aResponse [
+	self session return: aResponse.
+]
+
+{ #category : #'accessing-readonly' }
 FTPCommand >> server [
 	^ self session server.
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing-readonly' }
 FTPCommand >> session [
 	^ session
 ]
@@ -78,7 +94,7 @@ FTPCommand >> setSession: aSession [
 	session := aSession
 ]
 
-{ #category : #'accessing-dynamic' }
+{ #category : #'accessing-readonly' }
 FTPCommand >> state [
 	^ self session state.
 ]

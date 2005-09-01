@@ -4,7 +4,7 @@ This command does not affect any parameters or previously entered commands. It s
 Class {
 	#name : #FTPNoopCommand,
 	#superclass : #FTPCommand,
-	#category : 'FTP-Command-Information'
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }

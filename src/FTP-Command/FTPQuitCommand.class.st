@@ -6,7 +6,7 @@ An unexpected close on the control connection will cause the server to take the 
 Class {
 	#name : #FTPQuitCommand,
 	#superclass : #FTPCommand,
-	#category : 'FTP-Command-Session'
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }

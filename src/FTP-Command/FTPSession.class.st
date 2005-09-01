@@ -22,8 +22,11 @@ FTPSession class >> on: aSocket context: aContext [
 
 { #category : #actions }
 FTPSession >> close [
+	self server destroySession: self.
+	self isDataConnected
+		ifTrue: [ self data close ].
 	self telnet close.
-	self data close.
+	
 ]
 
 { #category : #accessing }
@@ -44,14 +47,13 @@ FTPSession >> data [
 { #category : #processing }
 FTPSession >> handlerLoop [
 	| request response |
-	FTPResponse ready writeOn: self telnet stream.
+	self response: FTPResponse ready.
 	[ self telnet isConnected ] whileTrue: [
 		request := FTPRequest readFrom: self telnet stream.
 		request command notEmpty ifTrue: [
-			self server isLogging ifTrue: [ request logOn: Transcript ].
 			response := self responseForRequest: request.
-			self server isLogging ifTrue: [ response logOn: Transcript ].
-			response writeOn: self telnet stream ] ].
+			response notNil 
+				ifTrue: [ self response: response ] ] ].
 ]
 
 { #category : #initialization }
@@ -61,24 +63,30 @@ FTPSession >> initialize [
 ]
 
 { #category : #testing }
-FTPSession >> isConnected [
-	^ self connection notNil and: [ self connection isConnected ].
+FTPSession >> isDataConnected [
+	^ self data notNil and: [ self data isConnected ].
 ]
 
 { #category : #testing }
-FTPSession >> isDataConnected [
-	^ self data notNil and: [ self data isConnected ].
+FTPSession >> isTelnetConnected [
+	^ self telnet isConnected.
 ]
 
 { #category : #processing }
 FTPSession >> performRequest: aRequest [
 	| command |
 	aRequest command isEmpty
-		ifTrue: [ self returnResponse: nil ].
+		ifTrue: [ self return: nil ].
 	command := FTPCommand 
 		in: self for: aRequest
 		ifAbsent: [ self context unknownRequest: aRequest ].
 	command execute.
+]
+
+{ #category : #'connection-telnet' }
+FTPSession >> response: aResponse [
+	aResponse writeOn: self telnet stream.
+	self telnet stream flush.
 ]
 
 { #category : #processing }
@@ -89,9 +97,15 @@ FTPSession >> responseForRequest: aRequest [
 				self performRequest: aRequest ] ] ].
 ]
 
-{ #category : #processing }
-FTPSession >> returnResponse: aResponse [
-	^ escaper value: aResponse.
+{ #category : #'connection-telnet' }
+FTPSession >> return: aResponse [
+	escaper value: aResponse.
+	
+]
+
+{ #category : #actions }
+FTPSession >> run [
+	self telnet run: [ self handlerLoop ].
 ]
 
 { #category : #'accessing-reading' }
@@ -117,7 +131,6 @@ FTPSession >> setServer: aServer [
 { #category : #initialization }
 FTPSession >> setSocket: aSocket [
 	telnet := FTPPassiveConnection on: aSocket.
-	telnet run: [ self handlerLoop ].
 ]
 
 { #category : #'accessing-reading' }
@@ -138,7 +151,11 @@ FTPSession >> withEscaperDo: aBlock [
 
 { #category : #processing }
 FTPSession >> withHandlerDo: aBlock [
-	^ aBlock on: Error do: [ :err | self returnResponse: (FTPResponse error: err messageText) ].
+	^ aBlock on: Error do: [ :error |
+		self return: (FTPResponse 
+			error: (self context isNil
+				ifFalse: [ self context walkbackException: error ]
+				ifTrue: [ error description ])) ].
 ]
 
 { #category : #processing }
@@ -146,7 +163,7 @@ FTPSession >> withSessionDo: aBlock [
 	^ FTPCurrentSession use: self during: aBlock.
 ]
 
-{ #category : #'data-connection' }
+{ #category : #'connection-data' }
 FTPSession >> withStreamDo: aBlock [
 	self isDataConnected
 		ifTrue: [ self data close ].
@@ -155,6 +172,6 @@ FTPSession >> withStreamDo: aBlock [
 		ifFalse: [ FTPActiveConnection ]) tcp.
 	self state passive
 		ifFalse: [ self data socket connectTo: self state ip port: self state port ]
-		ifTrue: [ self data socket listenOn: self state port backlogSize: self server defaultBacklog ].
+		ifTrue: [ self data socket listenOn: self state port backlogSize: self server backlog ].
 	self data run: [ aBlock value: self data stream ].
 ]

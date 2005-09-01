@@ -8,7 +8,7 @@ Class {
 		'lines',
 		'sizes'
 	],
-	#category : 'FTP-Command-Navigation'
+	#category : 'FTP-Command'
 }
 
 { #category : #private }

@@ -1,46 +1,37 @@
 Class {
 	#name : #FTPState,
-	#superclass : #Object,
-	#instVars : [
-		'account',
-		'username',
-		'password',
-		'ip',
-		'port',
-		'passive',
-		'binary'
-	],
+	#superclass : #FTPProperties,
 	#category : 'FTP-Server'
 }
 
-{ #category : #'accessing-authentication' }
+{ #category : #authentication }
 FTPState >> account [
-	^ account
+	^ self propertyAt: #account ifAbsent: [ String new ].
 ]
 
-{ #category : #'accessing-authentication' }
+{ #category : #authentication }
 FTPState >> account: aString [
-	account := aString
+	self propertyAt: #account put: aString.
 ]
 
-{ #category : #'accessing-transfer' }
+{ #category : #mode }
 FTPState >> binary [
-	^ binary ifNil: [ binary := false ].
+	^ self propertyAt: #binary ifAbsent: [ false ].
 ]
 
-{ #category : #'accessing-transfer' }
+{ #category : #mode }
 FTPState >> binary: aBoolean [
-	binary := aBoolean
+	self propertyAt: #binary put: aBoolean.
 ]
 
-{ #category : #'accessing-transfer' }
+{ #category : #address }
 FTPState >> ip [
-	^ ip
+	^ self propertyAt: #ip ifAbsent: [ #( 127 0 0 1 ) ].
 ]
 
-{ #category : #'accessing-transfer' }
+{ #category : #address }
 FTPState >> ip: anArray [
-	ip := anArray
+	self propertyAt: #ip put: anArray.
 ]
 
 { #category : #testing }
@@ -53,42 +44,52 @@ FTPState >> isPassive [
 	^ self passive.
 ]
 
-{ #category : #'accessing-transfer' }
+{ #category : #mode }
 FTPState >> passive [
-	^ passive ifNil: [ passive := false ].
+	^ self propertyAt: #passive ifAbsent: [ false ].
 ]
 
-{ #category : #'accessing-transfer' }
+{ #category : #mode }
 FTPState >> passive: aBoolean [
-	passive := aBoolean
+	self propertyAt: #passive put: aBoolean.
 ]
 
-{ #category : #'accessing-authentication' }
+{ #category : #authentication }
 FTPState >> password [
-	^ password
+	^ self propertyAt: #password ifAbsent: [ String new ].
 ]
 
-{ #category : #'accessing-authentication' }
+{ #category : #authentication }
 FTPState >> password: aString [
-	password := aString
+	self propertyAt: #password put: aString.
 ]
 
-{ #category : #'accessing-transfer' }
+{ #category : #address }
 FTPState >> port [
-	^ port
+	^ self propertyAt: #port ifAbsent: [ 20 ].
 ]
 
-{ #category : #'accessing-transfer' }
+{ #category : #address }
 FTPState >> port: anInteger [
-	port := anInteger
+	self propertyAt: #port put: anInteger.
 ]
 
-{ #category : #'accessing-authentication' }
+{ #category : #transfer }
+FTPState >> position [
+	^ self propertyAt: #position ifAbsent: [ 0 ].
+]
+
+{ #category : #transfer }
+FTPState >> position: anInteger [
+	self propertyAt: #position put: anInteger.
+]
+
+{ #category : #authentication }
 FTPState >> username [
-	^ username
+	^ self propertyAt: #username ifAbsent: [ String new ].
 ]
 
-{ #category : #'accessing-authentication' }
+{ #category : #authentication }
 FTPState >> username: aString [
-	username := aString
+	self propertyAt: #username put: aString.
 ]

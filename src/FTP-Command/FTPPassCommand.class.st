@@ -3,8 +3,8 @@ A PASS request has a parameter called a password. The client must not send a PAS
 "
 Class {
 	#name : #FTPPassCommand,
-	#superclass : #FTPCommand,
-	#category : 'FTP-Command-Session'
+	#superclass : #FTPSessionCommand,
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }
@@ -15,6 +15,5 @@ FTPPassCommand class >> command [
 { #category : #processing }
 FTPPassCommand >> execute [
 	self state password: self request argument.
-	self context updateAuthentication.
 	self return: (FTPResponse code: 230).
 ]

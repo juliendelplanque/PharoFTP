@@ -1,6 +1,6 @@
 Class {
 	#name : #FTPDispatcher,
-	#superclass : #FTPDirectoryContext,
+	#superclass : #FTPContext,
 	#instVars : [
 		'children'
 	],
@@ -9,6 +9,7 @@ Class {
 
 { #category : #changing }
 FTPDispatcher >> add: aContext [
+	aContext setParent: self.
 	^ children add: aContext.
 ]
 

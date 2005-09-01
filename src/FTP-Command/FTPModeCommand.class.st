@@ -4,12 +4,12 @@ MODE is obsolete. The server should accept MODE S (in any combination of lowerca
 Class {
 	#name : #FTPModeCommand,
 	#superclass : #FTPCommand,
-	#category : 'FTP-Command-Settings'
+	#category : 'FTP-Command'
 }
 
 { #category : #processing }
 FTPModeCommand >> execute [
-	self session returnResponse: (self request normalized = 'S'
+	self response: (self request normalized = 'S'
 		ifFalse: [ FTPResponse unsupportedParameter ]
 		ifTrue: [ FTPResponse okay ]).
 ]

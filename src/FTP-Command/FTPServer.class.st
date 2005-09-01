@@ -5,9 +5,9 @@ Class {
 	#name : #FTPServer,
 	#superclass : #Object,
 	#instVars : [
+		'settings',
 		'listener',
 		'process',
-		'properties',
 		'sessions'
 	],
 	#classVars : [
@@ -59,11 +59,12 @@ FTPServer class >> startOn: aNumber [
 
 { #category : #'instance creation' }
 FTPServer class >> startOn: aNumber context: aContext [
-	^ self new
+	| server |
+	server := self new.
+	server settings
 		port: aNumber;
-		context: aContext;
-		start;
-		yourself.
+		context: aContext.
+	^ server start.
 ]
 
 { #category : #private }
@@ -71,30 +72,12 @@ FTPServer class >> startUp [
 	self servers do: [ :each | each start ].
 ]
 
-{ #category : #accessing }
-FTPServer >> backlog [
-	^ self propertyAt: #backlog ifAbsent: [ 10 ].
-]
-
-{ #category : #accessing }
-FTPServer >> backlog: anInteger [
-	self propertyAt: #backlog put: anInteger.
-]
-
-{ #category : #accessing }
-FTPServer >> context [
-	^ self propertyAt: #context ifAbsent: [ FTPFilesystemDirectoryContext new ].
-]
-
-{ #category : #accessing }
-FTPServer >> context: aContext [
-	self propertyAt: #context put: aContext.
-]
-
 { #category : #'private-starting' }
 FTPServer >> createListener [
 	listener := Socket newTCP.
-	listener listenOn: self port backlogSize: self backlog.
+	listener 
+		listenOn: self settings port 
+		backlogSize: self settings backlog.
 ]
 
 { #category : #'private-starting' }
@@ -103,7 +86,7 @@ FTPServer >> createProcess [
 		forContext: [
 			[ self serverLoop ]
 				ensure: [ self destroyServer ] ]
-		priority: self priority.
+		priority: self settings priority.
 ]
 
 { #category : #'private-starting' }
@@ -117,9 +100,10 @@ FTPServer >> createServer [
 { #category : #'private-starting' }
 FTPServer >> createSession: aSocket [
 	self sessions add: (FTPSession new
+		setContext: self settings context copy;
+		setSocket: aSocket;
 		setServer: self;
-		setContext: self context copy;
-		setSocket: aSocket).
+		run).
 ]
 
 { #category : #'private-starting' }
@@ -152,14 +136,14 @@ FTPServer >> destroySession: aSession [
 
 { #category : #'private-stopping' }
 FTPServer >> destroySessions [
-	self sessions do: [ :each | each connection close ].
+	self sessions do: [ :each | each close ].
 	sessions := nil.
 ]
 
 { #category : #initialization }
 FTPServer >> initialize [
 	super initialize.
-	properties := Dictionary new.
+	settings := FTPSettings new.
 ]
 
 { #category : #testing }
@@ -170,71 +154,24 @@ FTPServer >> isConnected [
 ]
 
 { #category : #testing }
-FTPServer >> isLogging [
-	^ true
-]
-
-{ #category : #testing }
 FTPServer >> isRunning [
 	^ self process notNil.
 ]
 
-{ #category : #'accessing-readonly' }
+{ #category : #accessing }
 FTPServer >> listener [
 	^ listener
-]
-
-{ #category : #accessing }
-FTPServer >> port [
-	^ self propertyAt: #port ifAbsent: [ 21 ].
-]
-
-{ #category : #accessing }
-FTPServer >> port: aNumber [
-	self propertyAt: #port put: aNumber.
-	self isRunning ifTrue: [ self restart ].
 ]
 
 { #category : #printing }
 FTPServer >> printOn: aStream [
 	super printOn: aStream.
-	aStream space; nextPutAll: 'port: '; print: self port.
+	aStream space; nextPutAll: 'port: '; print: self settings port.
 ]
 
 { #category : #accessing }
-FTPServer >> priority [
-	^ self propertyAt: #priority ifAbsent: [ Processor userBackgroundPriority ].
-]
-
-{ #category : #accessing }
-FTPServer >> priority: aNumber [
-	self propertyAt: #priority put: aNumber.
-	self isRunning ifTrue: [ process priority: aNumber ].
-]
-
-{ #category : #'accessing-readonly' }
 FTPServer >> process [
 	^ process
-]
-
-{ #category : #'private-properties' }
-FTPServer >> properties [
-	^ properties
-]
-
-{ #category : #'private-properties' }
-FTPServer >> propertyAt: aSymbol [
-	^ self properties at: aSymbol.
-]
-
-{ #category : #'private-properties' }
-FTPServer >> propertyAt: aSymbol ifAbsent: aBlock [
-	^ self properties at: aSymbol ifAbsent: aBlock.
-]
-
-{ #category : #'private-properties' }
-FTPServer >> propertyAt: aSymbol put: anObject [
-	^ self properties at: aSymbol put: anObject.
 ]
 
 { #category : #actions }
@@ -253,7 +190,7 @@ FTPServer >> serverLoopBody [
 	self isConnected
 		ifFalse: [ self destroyListener; createListener ].
 	socket := listener 
-		waitForAcceptFor: self timeout 
+		waitForAcceptFor: self settings timeout 
 		ifTimedOut: [ nil ].
 	socket notNil ifTrue: [
 		socket isConnected
@@ -262,9 +199,14 @@ FTPServer >> serverLoopBody [
 	
 ]
 
-{ #category : #'accessing-readonly' }
+{ #category : #accessing }
 FTPServer >> sessions [
 	^ sessions
+]
+
+{ #category : #accessing }
+FTPServer >> settings [
+	^ settings
 ]
 
 { #category : #actions }
@@ -282,14 +224,4 @@ FTPServer >> stop [
 		ifFalse: [ ^self ].
 	self process terminate.
 	self class removeServer: self.
-]
-
-{ #category : #accessing }
-FTPServer >> timeout [
-	^ self propertyAt: #timeout ifAbsent: [ 10 ].
-]
-
-{ #category : #accessing }
-FTPServer >> timeout: anInteger [
-	self propertyAt: #timeout put: anInteger.
 ]

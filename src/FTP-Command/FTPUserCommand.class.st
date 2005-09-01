@@ -3,8 +3,8 @@ A USER request has a parameter showing a username. Subsequent pathnames are inte
 "
 Class {
 	#name : #FTPUserCommand,
-	#superclass : #FTPCommand,
-	#category : 'FTP-Command-Session'
+	#superclass : #FTPSessionCommand,
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }
@@ -15,6 +15,5 @@ FTPUserCommand class >> command [
 { #category : #processing }
 FTPUserCommand >> execute [
 	self state username: self request argument.
-	self context updateAuthentication.
 	self return: (FTPResponse code: 230).
 ]

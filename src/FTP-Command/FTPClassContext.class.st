@@ -1,6 +1,6 @@
 Class {
 	#name : #FTPClassContext,
-	#superclass : #FTPDirectoryContext,
+	#superclass : #FTPContext,
 	#instVars : [
 		'actualClass',
 		'children'
@@ -51,6 +51,6 @@ FTPClassContext >> name [
 { #category : #events }
 FTPClassContext >> unknownRequest: aRequest [
 	aRequest command = 'EVAL'
-		ifTrue: [ self session returnResponse: (FTPResponse code: 200 string: (Compiler evaluate: aRequest argument) asString) ].
+		ifTrue: [ self session return: (FTPResponse code: 200 string: (Compiler evaluate: aRequest argument) asString) ].
 	super unknownRequest: aRequest. 
 ]

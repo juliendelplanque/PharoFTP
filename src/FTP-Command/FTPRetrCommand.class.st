@@ -11,8 +11,8 @@ The server is obliged to close the data connection in each of these cases. The c
 "
 Class {
 	#name : #FTPRetrCommand,
-	#superclass : #FTPFileCommand,
-	#category : 'FTP-Command-Transfer'
+	#superclass : #FTPTransferCommand,
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }
@@ -20,12 +20,17 @@ FTPRetrCommand class >> command [
 	^ 'RETR'
 ]
 
-{ #category : #processing }
-FTPRetrCommand >> execute [
-	self checkTarget: #isFile.
-	(FTPResponse code: 150)
-		writeOn: self connection stream.
-	self session withStreamDo: [ :stream |
-		stream nextPutAll: target contents; flush ].
-	self return: (FTPResponse code: 226).
+{ #category : #private }
+FTPRetrCommand >> cleanup: aContext [
+	self state position: 0.
+]
+
+{ #category : #private }
+FTPRetrCommand >> lookup [
+	^ self findContext: self request argument type: #file.
+]
+
+{ #category : #private }
+FTPRetrCommand >> process: aContext on: aStream [
+	aContext get: aStream startingAt: self state position.
 ]

@@ -35,7 +35,7 @@ FTPRequest >> logOn: aStream [
 	self writeOn: aStream ident: '>> '.
 ]
 
-{ #category : #'accessing-dynamic' }
+{ #category : #conveniance }
 FTPRequest >> normalized [
 	^ self argument withBlanksTrimmed asUppercase.
 ]

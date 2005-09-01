@@ -36,7 +36,7 @@ FTPResponse class >> code: anInteger string: aString [
 FTPResponse class >> error: aString [
 	"The request violated some internal parsing rule in the server."
 
-	^ self code: 500 line: aString.
+	^ self code: 500 string: aString.
 ]
 
 { #category : #rejecting }
@@ -124,8 +124,8 @@ FTPResponse >> writeOn: aStream ident: aString [
 	1 to: self lines size do: [ :index |
 		aStream nextPutAll: aString; print: self code.
 		aStream nextPut: (self lines size = index
-			ifTrue: [ $  ] ifFalse: [ $- ]).
+			ifTrue: [ $  ]
+			ifFalse: [ $- ]).
 		aStream nextPutAll: (self lines at: index).
 		aStream nextPutAll: String crlf ].
-	aStream flush.
 ]

@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'numbers'
 	],
-	#category : 'FTP-Command-Settings'
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }

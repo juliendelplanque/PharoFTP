@@ -10,8 +10,8 @@ The server may reject the STOR request (code 450, 452, or 553) without first res
 "
 Class {
 	#name : #FTPStorCommand,
-	#superclass : #FTPFileCommand,
-	#category : 'FTP-Command-Transfer'
+	#superclass : #FTPTransferCommand,
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }
@@ -19,12 +19,18 @@ FTPStorCommand class >> command [
 	^ 'STOR'
 ]
 
-{ #category : #processing }
-FTPStorCommand >> execute [
-	self checkTarget: #isFile.
-	(FTPResponse code: 150)
-		writeOn: self connection stream.
-	self session withStreamDo: [ :stream |
-		target contents: stream upToEnd ].
-	self return: (FTPResponse code: 226).
+{ #category : #private }
+FTPStorCommand >> cleanup: aContext [
+	aContext hasParent
+		ifTrue: [ aContext parent flush ].
+]
+
+{ #category : #private }
+FTPStorCommand >> lookup [
+	^ self findContext: self request argument type: #file.
+]
+
+{ #category : #private }
+FTPStorCommand >> process: aContext on: aStream [
+	aContext put: aStream.
 ]

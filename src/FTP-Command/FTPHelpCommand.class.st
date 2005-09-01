@@ -4,7 +4,7 @@ A HELP request asks for human-readable information from the server. The server m
 Class {
 	#name : #FTPHelpCommand,
 	#superclass : #FTPInformationCommand,
-	#category : 'FTP-Command-Information'
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }

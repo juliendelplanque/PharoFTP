@@ -5,8 +5,8 @@ The server may accept ACCT with code 230, meaning that permission to access file
 "
 Class {
 	#name : #FTPAcctCommand,
-	#superclass : #FTPCommand,
-	#category : 'FTP-Command-Session'
+	#superclass : #FTPSessionCommand,
+	#category : 'FTP-Command'
 }
 
 { #category : #accessing }
@@ -17,6 +17,5 @@ FTPAcctCommand class >> command [
 { #category : #processing }
 FTPAcctCommand >> execute [
 	self state account: self request argument.
-	self context updateAuthentication.
 	self return: (FTPResponse code: 230).
 ]

@@ -37,7 +37,7 @@ FTPConnection >> open [
 
 { #category : #actions }
 FTPConnection >> run: aBlock [
-	self subclassResponsibility.
+	aBlock ensure: [ self close ].
 ]
 
 { #category : #initialization }

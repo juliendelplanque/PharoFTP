@@ -1,6 +1,6 @@
 Class {
 	#name : #FTPMethodContext,
-	#superclass : #FTPFileContext,
+	#superclass : #FTPContext,
 	#instVars : [
 		'actualClass',
 		'selector',
