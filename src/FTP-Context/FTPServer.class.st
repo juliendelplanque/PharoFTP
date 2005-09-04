@@ -5,11 +5,10 @@ Class {
 	#name : #FTPServer,
 	#superclass : #Object,
 	#instVars : [
+		'settings',
+		'listener',
 		'process',
-		'port',
-		'priority',
-		'context',
-		'listener'
+		'sessions'
 	],
 	#classVars : [
 		'Servers'
@@ -25,6 +24,7 @@ FTPServer class >> addServer: aServer [
 { #category : #'class initialization' }
 FTPServer class >> initialize [
 	Smalltalk addToStartUpList: self.
+	Smalltalk addToShutDownList: self.
 ]
 
 { #category : #private }
@@ -37,123 +37,103 @@ FTPServer class >> servers [
 	^ Servers ifNil: [ Servers := Set new ].
 ]
 
-{ #category : #'instance creation' }
-FTPServer class >> start [
-	^ self new  
-		start;
-		yourself.
+{ #category : #private }
+FTPServer class >> shutDown [
+	 self servers do: [ :each | each stop ].
 ]
 
 { #category : #'instance creation' }
 FTPServer class >> startOn: aNumber [
-	^ self new
-		port: aNumber;
-		start;
-		yourself.
+	^ self startOn: aNumber context: FTPDispatcher new.
 ]
 
 { #category : #'instance creation' }
 FTPServer class >> startOn: aNumber context: aContext [
-	^ self new
+	| server |
+	server := self new.
+	server settings
 		port: aNumber;
-		context: aContext;
-		start;
-		yourself.
+		context: aContext.
+	^ server start.
 ]
 
 { #category : #private }
 FTPServer class >> startUp [
-	self servers do: [ :each | each restart ].
+	self servers do: [ :each | each start ].
 ]
 
-{ #category : #accessing }
-FTPServer >> context [
-	context isNil
-		ifTrue: [ context := self defaultContext ].
-	^context
-]
-
-{ #category : #accessing }
-FTPServer >> context: aContext [
-	context := aContext.
-]
-
-{ #category : #private }
+{ #category : #'private-starting' }
 FTPServer >> createListener [
 	listener := Socket newTCP.
-	listener listenOn: self port backlogSize: self defaultBacklog.
+	listener 
+		listenOn: self settings port 
+		backlogSize: self settings backlog.
 ]
 
-{ #category : #private }
+{ #category : #'private-starting' }
 FTPServer >> createProcess [
 	process := Process 
 		forContext: [
 			[ self serverLoop ]
 				ensure: [ self destroyServer ] ]
-		priority: self priority.
+		priority: self settings priority.
 ]
 
-{ #category : #private }
+{ #category : #'private-starting' }
 FTPServer >> createServer [
+	self createSessions.
 	self createProcess.
 	self createListener.
+	
 ]
 
-{ #category : #private }
+{ #category : #'private-starting' }
 FTPServer >> createSession: aSocket [
-	FTPSession new
-		setContext: self context copy;
-		setConnection: (FTPConnection new
-			setServer: self;
-			setSocket: aSocket);
-		start.
+	self sessions add: (FTPSession new
+		setContext: self settings context copy;
+		setSocket: aSocket;
+		setServer: self;
+		run).
 ]
 
-{ #category : #'accessing-configuration' }
-FTPServer >> defaultAcceptTimeout [
-	^ 10.
+{ #category : #'private-starting' }
+FTPServer >> createSessions [
+	sessions := Set new.
 ]
 
-{ #category : #'accessing-configuration' }
-FTPServer >> defaultBacklog [
-	^ 10.
-]
-
-{ #category : #'accessing-configuration' }
-FTPServer >> defaultContext [
-	^ FTPFilesystemContext on: (FileDirectory default).
-]
-
-{ #category : #'accessing-configuration' }
-FTPServer >> defaultPort [
-	^ 21.
-]
-
-{ #category : #'accessing-configuration' }
-FTPServer >> defaultPriority [
-	^ Processor userBackgroundPriority.
-]
-
-{ #category : #'accessing-configuration' }
-FTPServer >> defaultSessionTimeout [
-	^ 320.
-]
-
-{ #category : #private }
+{ #category : #'private-stopping' }
 FTPServer >> destroyListener [
 	listener destroy.
 	listener := nil.
 ]
 
-{ #category : #private }
+{ #category : #'private-stopping' }
 FTPServer >> destroyProcess [
 	process := nil.
 ]
 
-{ #category : #private }
+{ #category : #'private-stopping' }
 FTPServer >> destroyServer [
 	self destroyProcess.
 	self destroyListener.
+	self destroySessions.
+]
+
+{ #category : #'private-stopping' }
+FTPServer >> destroySession: aSession [
+	self sessions remove: aSession.
+]
+
+{ #category : #'private-stopping' }
+FTPServer >> destroySessions [
+	self sessions do: [ :each | each close ].
+	sessions := nil.
+]
+
+{ #category : #initialization }
+FTPServer >> initialize [
+	super initialize.
+	settings := FTPSettings new.
 ]
 
 { #category : #testing }
@@ -168,48 +148,20 @@ FTPServer >> isRunning [
 	^ self process notNil.
 ]
 
-{ #category : #'accessing-readonly' }
+{ #category : #accessing }
 FTPServer >> listener [
-	^listener
-]
-
-{ #category : #accessing }
-FTPServer >> port [
-	port isNil
-		ifTrue: [ port := self defaultPort ].
-	^port
-]
-
-{ #category : #accessing }
-FTPServer >> port: aNumber [
-	port := aNumber.
-	self isRunning
-		ifTrue: [ self restart ].
+	^ listener
 ]
 
 { #category : #printing }
 FTPServer >> printOn: aStream [
 	super printOn: aStream.
-	aStream space; nextPutAll: 'port: '; print: self port.
+	aStream space; nextPutAll: 'port: '; print: self settings port.
 ]
 
 { #category : #accessing }
-FTPServer >> priority [
-	priority isNil
-		ifTrue: [ priority := self defaultPriority ].
-	^priority
-]
-
-{ #category : #accessing }
-FTPServer >> priority: aNumber [
-	priority := aNumber.
-	self isRunning 
-		ifTrue: [ process priority: aNumber ].
-]
-
-{ #category : #'accessing-readonly' }
 FTPServer >> process [
-	^process
+	^ process
 ]
 
 { #category : #actions }
@@ -219,8 +171,7 @@ FTPServer >> restart [
 
 { #category : #private }
 FTPServer >> serverLoop [
-	[ self serverLoopBody ]
-		repeat.
+	[ self serverLoopBody ] repeat.
 ]
 
 { #category : #private }
@@ -229,7 +180,7 @@ FTPServer >> serverLoopBody [
 	self isConnected
 		ifFalse: [ self destroyListener; createListener ].
 	socket := listener 
-		waitForAcceptFor: self defaultAcceptTimeout 
+		waitForAcceptFor: self settings timeout 
 		ifTimedOut: [ nil ].
 	socket notNil ifTrue: [
 		socket isConnected
@@ -238,10 +189,20 @@ FTPServer >> serverLoopBody [
 	
 ]
 
+{ #category : #accessing }
+FTPServer >> sessions [
+	^ sessions
+]
+
+{ #category : #accessing }
+FTPServer >> settings [
+	^ settings
+]
+
 { #category : #actions }
 FTPServer >> start [
 	self isRunning 
-		ifTrue: [ ^self ].
+		ifTrue: [ ^ self ].
 	self createServer.
 	self process resume.
 	self class addServer: self.

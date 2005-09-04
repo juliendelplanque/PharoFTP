@@ -1,55 +1,51 @@
 Class {
 	#name : #FTPClassContext,
-	#superclass : #FTPContext,
+	#superclass : #FTPSmalltalkContext,
 	#instVars : [
-		'actualClass'
+		'children'
 	],
 	#category : 'FTP-Context'
 }
 
 { #category : #accessing }
-FTPClassContext >> actualClass [ 
-	^ actualClass ifNil: [ actualClass := ProtoObject ]
+FTPClassContext >> children [
+	^ children ifNil: [
+		children := Array streamContents: [ :stream |
+			self actualClass subclasses do: [ :each |
+				stream nextPut: ((FTPClassContext parent: self)
+					setActualClass: each;
+					yourself) ].
+			self actualClass selectors do: [ :each |
+				stream nextPut: ((FTPMethodContext parent: self)
+					setActualClass: self actualClass;
+					setSelector: each;
+					yourself) ].
+			self actualClass class selectors do: [ :each |
+				stream nextPut: ((FTPMethodContext parent: self)
+					setActualClass: self actualClass class;
+					setSelector: each;
+					yourself) ] ] ].
+]
+
+{ #category : #events }
+FTPClassContext >> flush [
+	super flush.
+	children := nil.
 ]
 
 { #category : #accessing }
-FTPClassContext >> actualClass: aClass [
-	actualClass := aClass
+FTPClassContext >> name [
+	^ self actualClass name asString.
 ]
 
-{ #category : #navigation }
-FTPClassContext >> changeDirectoryTo: aString [
-	^ self species new
-		actualClass: (Smalltalk at: aString asSymbol);
-		yourself.
-]
-
-{ #category : #navigation }
-FTPClassContext >> changeDirectoryToParent [
-	^ self species new
-		actualClass: self actualClass superclass;
-		yourself.
-]
-
-{ #category : #navigation }
-FTPClassContext >> listDirectory [
-	self session transferWith: [ :stream |
-		self actualClass subclasses do: [ :each |
-			stream nextPutAll: each name; crlf ].
-		self actualClass selectors do: [ :each |
-			stream nextPutAll: each; crlf ] ].
-]
-
-{ #category : #'accessing-dynamic' }
-FTPClassContext >> subclasses [
-	^ self actualClass subclasses
-]
-
-{ #category : #navigation }
-FTPClassContext >> workingDirectory [
-	^ String streamContents: [ :stream |
-		stream nextPut: $/.
-		self actualClass withAllSuperclasses allButLast reverse
-			do: [ :each | stream nextPutAll: each asString ]
-			separatedBy: [ stream nextPut: $/ ] ].
+{ #category : #events }
+FTPClassContext >> unknownRequest: aRequest [ 
+	aRequest verb = 'EVAL' ifTrue: [
+		self session return: (FTPResponse
+			code: 200
+			string: (Compiler 
+				evaluate: aRequest argument
+				for: self actualClass
+				logged: false) asString) ].
+	super unknownRequest: aRequest.
 ]
