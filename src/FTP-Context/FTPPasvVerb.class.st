@@ -23,13 +23,10 @@ FTPPasvVerb >> execute [
 		passive: true;
 		ip: NetNameResolver localHostAddress;
 		port: self settings portrange atRandom.
-	self return: (FTPResponse error: 'PASV not yet implemented').
-	
-	" not working yet
 	self session passiveDataConnection.
 	self return: (FTPResponse
 		code: 227 
 		line: (String streamContents: [ :stream |
 			self state ip do: [ :each | stream print: each; nextPut: $, ].
-			stream print: self state port // 256; nextPut: $,; print: self state port \\ 256 ]))."
+			stream print: self state port // 256; nextPut: $,; print: self state port \\ 256 ])).
 ]

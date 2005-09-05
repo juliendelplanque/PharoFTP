@@ -317,13 +317,6 @@ FTPContext >> statusString [
 			ifTrue: [ 'passive' ] ifFalse: [ 'active' ]); cr ].
 ]
 
-{ #category : #'accessing-strings' }
-FTPContext >> systemString [
-	" Return the system name of name of the server, defaults to a human readable string. "
-	
-	^ SmalltalkImage current vmVersion.
-]
-
 { #category : #events }
 FTPContext >> unknownRequest: aRequest [
 	" This message will be sent for any unknown command, sublcasses might override the default implementation to handle additional user defined commands. "

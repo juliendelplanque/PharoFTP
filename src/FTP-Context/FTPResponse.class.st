@@ -87,8 +87,8 @@ FTPResponse >> lines [
 ]
 
 { #category : #printing }
-FTPResponse >> logOn: aStream [
-	self writeOn: aStream ident: '<< '.
+FTPResponse >> log: aSession on: aStream [
+	self writeOn: aStream ident: aSession printString , ' << '.
 ]
 
 { #category : #printing }

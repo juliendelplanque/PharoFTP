@@ -26,8 +26,8 @@ FTPRequest >> argument [
 ]
 
 { #category : #printing }
-FTPRequest >> logOn: aStream [
-	self writeOn: aStream ident: '>> '.
+FTPRequest >> log: aSession on: aStream [
+	self writeOn: aStream ident: aSession printString , ' >> '.
 ]
 
 { #category : #conveniance }

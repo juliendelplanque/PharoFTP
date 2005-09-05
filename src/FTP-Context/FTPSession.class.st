@@ -26,8 +26,8 @@ FTPSession >> activeDataConnection [
 		ifTrue: [ self data close ].
 	self setData: (FTPActiveConnection on: Socket newTCP).
 	self data socket
-		connectTo: self state ip 
-		port: self state port.
+		connectTo: self state ip port: self state port
+		waitForConnectionFor: self settings timeout.
 ]
 
 { #category : #actions }
@@ -87,14 +87,14 @@ FTPSession >> passiveDataConnection [
 	self setData: (FTPPassiveConnection on: Socket newTCP).
 	self data socket 
 		listenOn: self state port 
-		backlogSize: self server settings backlog.
+		backlogSize: 0.
 ]
 
 { #category : #processing }
 FTPSession >> performLogging: aMessage [
 	self server settings isLogging
 		ifFalse: [ ^ self ].
-	aMessage logOn: Transcript.
+	aMessage log: self on: Transcript.
 	Transcript endEntry.
 ]
 
@@ -107,6 +107,12 @@ FTPSession >> performRequest: aRequest [
 		in: self for: aRequest
 		ifAbsent: [ self context unknownRequest: aRequest ].
 	self return: verb execute.
+]
+
+{ #category : #printing }
+FTPSession >> printOn: aStream [
+	super printOn: aStream.
+	aStream nextPut: $[; print: self hash; nextPut: $].
 ]
 
 { #category : #'connection-telnet' }
@@ -160,6 +166,11 @@ FTPSession >> setServer: aServer [
 { #category : #initialization }
 FTPSession >> setSocket: aSocket [
 	telnet := FTPTelnetConnection on: aSocket.
+]
+
+{ #category : #'accessing-reading' }
+FTPSession >> settings [
+	^ self server settings.
 ]
 
 { #category : #'accessing-reading' }

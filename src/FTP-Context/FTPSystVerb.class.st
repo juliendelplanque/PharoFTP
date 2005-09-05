@@ -14,7 +14,7 @@ FTPSystVerb class >> verbs [
 
 { #category : #accessing }
 FTPSystVerb >> contents [
-	^ self context systemString.
+	^ 'UNIX Type: L8'
 ]
 
 { #category : #accessing }

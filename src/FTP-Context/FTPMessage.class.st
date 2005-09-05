@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #printing }
-FTPMessage >> logOn: aStream [
+FTPMessage >> log: aSession on: aStream [
 	self subclassResponsibility.
 ]
 
