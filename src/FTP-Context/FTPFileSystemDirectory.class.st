@@ -31,6 +31,11 @@ FTPFileSystemDirectory >> directory [
 	^ self owner directoryNamed: self name.
 ]
 
+{ #category : #testing }
+FTPFileSystemDirectory >> isDirectory [
+	^ true
+]
+
 { #category : #initialization }
 FTPFileSystemDirectory >> setDirectory: aDirectory [
 	self setOwner: aDirectory containingDirectory.

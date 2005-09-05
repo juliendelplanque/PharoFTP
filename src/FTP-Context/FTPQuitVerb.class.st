@@ -16,5 +16,6 @@ FTPQuitVerb class >> verbs [
 
 { #category : #processing }
 FTPQuitVerb >> execute [
+	self response: (FTPResponse code: 221 string: self context goodbyeString).
 	self session close.
 ]

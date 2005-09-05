@@ -11,7 +11,7 @@ Class {
 
 { #category : #accessing }
 FTPCdupVerb class >> verbs [
-	^ Array with: 'CDUP'.
+	^ Array with: 'CDUP' with: 'XCUP'.
 ]
 
 { #category : #processing }

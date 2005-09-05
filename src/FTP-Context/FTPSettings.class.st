@@ -50,6 +50,16 @@ FTPSettings >> port: aNumber [
 ]
 
 { #category : #sockets }
+FTPSettings >> portrange [
+	^ self propertyAt: #portrange ifAbsent: [ 1024 to: 65536 ].
+]
+
+{ #category : #sockets }
+FTPSettings >> portrange: anInterval [
+	self propertyAt: #portrange put: anInterval.
+]
+
+{ #category : #sockets }
 FTPSettings >> priority [
 	^ self propertyAt: #priority ifAbsent: [ Processor userBackgroundPriority ].
 ]

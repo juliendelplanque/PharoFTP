@@ -64,6 +64,11 @@ FTPMethodContext >> name [
 ]
 
 { #category : #accessing }
+FTPMethodContext >> ownerName [
+	^ user ifNil: [ super ownerName ].
+]
+
+{ #category : #accessing }
 FTPMethodContext >> selector [
 	^ selector
 ]
@@ -72,9 +77,4 @@ FTPMethodContext >> selector [
 FTPMethodContext >> setSelector: aSelector [
 	selector := aSelector.
 	self flush.
-]
-
-{ #category : #accessing }
-FTPMethodContext >> userName [
-	^ user ifNil: [ super userName ].
 ]

@@ -49,11 +49,6 @@ FTPFileSystem >> owner [
 ]
 
 { #category : #initialization }
-FTPFileSystem >> setDirectory: aDirectory [
-	directory := aDirectory
-]
-
-{ #category : #initialization }
 FTPFileSystem >> setEntry: anArray [
 	entry := anArray
 ]

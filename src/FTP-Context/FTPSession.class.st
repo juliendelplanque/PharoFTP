@@ -20,6 +20,16 @@ FTPSession class >> on: aSocket context: aContext [
 		yourself.
 ]
 
+{ #category : #'connection-data' }
+FTPSession >> activeDataConnection [
+	self isDataConnected
+		ifTrue: [ self data close ].
+	self setData: (FTPActiveConnection on: Socket newTCP).
+	self data socket
+		connectTo: self state ip 
+		port: self state port.
+]
+
 { #category : #actions }
 FTPSession >> close [
 	self server destroySession: self.
@@ -51,6 +61,7 @@ FTPSession >> handlerLoop [
 	[ self telnet isConnected ] whileTrue: [
 		request := FTPRequest readFrom: self telnet stream.
 		self response: (self responseForRequest: request) ].
+	self close.
 ]
 
 { #category : #initialization }
@@ -69,6 +80,16 @@ FTPSession >> isTelnetConnected [
 	^ self telnet isConnected.
 ]
 
+{ #category : #'connection-data' }
+FTPSession >> passiveDataConnection [
+	self isDataConnected
+		ifTrue: [ self data close ].
+	self setData: (FTPPassiveConnection on: Socket newTCP).
+	self data socket 
+		listenOn: self state port 
+		backlogSize: self server settings backlog.
+]
+
 { #category : #processing }
 FTPSession >> performLogging: aMessage [
 	self server settings isLogging
@@ -85,7 +106,7 @@ FTPSession >> performRequest: aRequest [
 	verb := FTPVerb
 		in: self for: aRequest
 		ifAbsent: [ self context unknownRequest: aRequest ].
-	verb execute.
+	self return: verb execute.
 ]
 
 { #category : #'connection-telnet' }
@@ -138,7 +159,7 @@ FTPSession >> setServer: aServer [
 
 { #category : #initialization }
 FTPSession >> setSocket: aSocket [
-	telnet := FTPPassiveConnection on: aSocket.
+	telnet := FTPTelnetConnection on: aSocket.
 ]
 
 { #category : #'accessing-reading' }
@@ -173,13 +194,9 @@ FTPSession >> withSessionDo: aBlock [
 
 { #category : #'connection-data' }
 FTPSession >> withStreamDo: aBlock [
-	self isDataConnected
-		ifTrue: [ self data close ].
-	self setData: (self state passive
-		ifTrue: [ FTPPassiveConnection ]
-		ifFalse: [ FTPActiveConnection ]) tcp.
-	self state passive
-		ifFalse: [ self data socket connectTo: self state ip port: self state port ]
-		ifTrue: [ self data socket listenOn: self state port backlogSize: self server backlog ].
+	self state isPassive
+		ifFalse: [ self activeDataConnection ].
+	self data isConnected 
+		ifFalse: [ self error: 'Invalid data connection.' ].
 	self data run: [ aBlock value: self data stream ].
 ]

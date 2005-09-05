@@ -14,13 +14,10 @@ FTPConnection class >> on: aSocket [
 		yourself.
 ]
 
-{ #category : #'instance-creation' }
-FTPConnection class >> tcp [
-	^ self on: Socket newTCP.
-]
-
 { #category : #actions }
 FTPConnection >> close [
+	" Close the connection of the receiver and free all resources. "
+	 
 	self isConnected 
 		ifTrue: [ self stream close ].
 ]
@@ -42,7 +39,12 @@ FTPConnection >> run: aBlock [
 
 { #category : #initialization }
 FTPConnection >> setSocket: aSocket [
-	stream := SocketStream on: aSocket.
+	self setStream: (SocketStream on: aSocket).
+]
+
+{ #category : #initialization }
+FTPConnection >> setStream: aStream [
+	stream := aStream.
 ]
 
 { #category : #accessing }

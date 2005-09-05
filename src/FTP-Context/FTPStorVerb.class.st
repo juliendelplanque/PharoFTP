@@ -10,7 +10,7 @@ The server may reject the STOR request (code 450, 452, or 553) without first res
 "
 Class {
 	#name : #FTPStorVerb,
-	#superclass : #FTPTransferVerb,
+	#superclass : #FTPTransfer,
 	#category : 'FTP-Verbs'
 }
 

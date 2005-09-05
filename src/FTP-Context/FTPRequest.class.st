@@ -32,7 +32,7 @@ FTPRequest >> logOn: aStream [
 
 { #category : #conveniance }
 FTPRequest >> normalized [
-	^ self verb withBlanksTrimmed asUppercase.
+	^ self argument withBlanksTrimmed asUppercase.
 ]
 
 { #category : #printing }

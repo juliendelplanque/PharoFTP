@@ -5,7 +5,7 @@ The server may accept ACCT with code 230, meaning that permission to access file
 "
 Class {
 	#name : #FTPAcctVerb,
-	#superclass : #FTPSessionVerb,
+	#superclass : #FTPAuthentication,
 	#category : 'FTP-Verbs'
 }
 

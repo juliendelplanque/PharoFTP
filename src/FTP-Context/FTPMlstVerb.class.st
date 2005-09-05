@@ -5,77 +5,23 @@ Two commands are defined, MLST which provides data about exactly the object name
 "
 Class {
 	#name : #FTPMlstVerb,
-	#superclass : #FTPListingVerb,
+	#superclass : #FTPModernListing,
 	#category : 'FTP-Verbs'
 }
-
-{ #category : #accessing }
-FTPMlstVerb class >> features [
-	^ #( 'MLST Type*;Size*;Modify*;Create*;Unique*' )
-]
 
 { #category : #accessing }
 FTPMlstVerb class >> verbs [
 	^ Array with: 'MLST'.
 ]
 
-{ #category : #querying }
-FTPMlstVerb >> creationOf: aContext [
-	^ self tuple: 'Create' with: aContext creation asSeconds.
+{ #category : #accessing }
+FTPMlstVerb >> children [
+	^ Array with: (self findContext: self request argument).
 ]
 
 { #category : #processing }
 FTPMlstVerb >> execute [
 	self return: (FTPResponse code: 250 string: (String streamContents: [ :stream |
-		stream nextPutAll: 'Listing of "'; nextPutAll: self context pathString; nextPut: $"; cr.
-		self children do: [ :context |
-			self selectors
-				do: [ :each | stream nextPutAll: (self perform: each with: context) ]
-				separatedBy: [ stream nextPut: self separator ].
-			stream cr ].
-		stream nextPutAll: 'END' ])).
-]
-
-{ #category : #processing }
-FTPMlstVerb >> executeOn: aStream [
-	self return: (FTPResponse code: 250 string: (String streamContents: [ :stream |
-		stream nextPutAll: 'Listing of "'; nextPutAll: self context pathString; nextPutAll: '":'; cr.
-		self executeOn: aStream.
-		stream nextPutAll: 'END' ])).
-]
-
-{ #category : #querying }
-FTPMlstVerb >> modificationOf: aContext [
-	^ self tuple: 'Modify' with: aContext modification asSeconds.
-]
-
-{ #category : #accessing }
-FTPMlstVerb >> selectors [
-	^ #( typeOf: sizeOf: modificationOf: creationOf: uniqueOf: nameOf: ).
-]
-
-{ #category : #accessing }
-FTPMlstVerb >> separator [
-	^ $;
-]
-
-{ #category : #querying }
-FTPMlstVerb >> sizeOf: aContext [
-	^ self tuple: 'Size' with: (super sizeOf: aContext).
-]
-
-{ #category : #private }
-FTPMlstVerb >> tuple: aKey with: anObject [
-	^ String streamContents: [ :stream | 
-		stream nextPutAll: aKey; nextPut: $=; nextPutAll: anObject asString ].
-]
-
-{ #category : #querying }
-FTPMlstVerb >> typeOf: aContext [
-	^ self tuple: 'Type' with: (aContext isFile ifTrue: [ 'file' ] ifFalse: [ 'dir' ]).
-]
-
-{ #category : #querying }
-FTPMlstVerb >> uniqueOf: aContext [
-	^ self tuple: 'Unique' with: aContext hash.
+		self print: self children on: stream.
+		stream skip: String crlf size negated ])).
 ]

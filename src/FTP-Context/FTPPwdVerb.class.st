@@ -6,7 +6,7 @@ Class {
 
 { #category : #accessing }
 FTPPwdVerb class >> verbs [
-	^ Array with: 'PWD'.
+	^ Array with: 'PWD' with: 'XPWD'.
 ]
 
 { #category : #processing }

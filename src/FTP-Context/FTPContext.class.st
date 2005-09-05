@@ -14,6 +14,12 @@ FTPContext class >> parent: aContext [
 		yourself.
 ]
 
+{ #category : #comparing }
+FTPContext >> = anObject [
+	^ self species = anObject species
+		and: [ self name = anObject name ].
+]
+
 { #category : #converting }
 FTPContext >> asRenamed: aString [
 	^ (FTPRenamedContext on: self)
@@ -28,6 +34,55 @@ FTPContext >> at: aString ifAbsent: aBlock [
 	^ self children 
 		detect: [ :each | each name = aString ]
 		ifNone: aBlock.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> canAppend [
+	" Return true if data can be appended to the receiver. "
+
+	^ self canWrite.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> canBeDeleted [
+	" Return true if the receiver can be deleted. "
+
+	^ self hasParent.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> canBeListed [
+	" Return true if the receiver can be browsed. "
+
+	^ self isDirectory.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> canBeRenamed [
+	" Return true if the receiver can be renamed. "
+
+	^ self hasParent.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> canCreate [
+	" Return true if a file or directory can be created within the receiver. "
+
+	^ self isDirectory.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> canRead [
+	" Return true if the receiver can be read. "
+
+	^ self isFile.
+]
+
+{ #category : #'testing-permissions' }
+FTPContext >> canWrite [
+	" Return true if the receiver can be written. "
+
+	^ self isFile.
 ]
 
 { #category : #accessing }
@@ -82,6 +137,13 @@ FTPContext >> get: aWriteStream startingAt: anInteger [
 ]
 
 { #category : #'accessing-strings' }
+FTPContext >> goodbyeString [
+	" Return a goodbye string to be displayed when the session is quit. "
+
+	^ 'Bye'
+]
+
+{ #category : #'accessing-strings' }
 FTPContext >> groupName [
 	" Return the name of the group owning the receiver. "
 	
@@ -91,6 +153,11 @@ FTPContext >> groupName [
 { #category : #testing }
 FTPContext >> hasParent [
 	^ self parent notNil.
+]
+
+{ #category : #comparing }
+FTPContext >> hash [
+	^ self species hash bitXor: self name hash.
 ]
 
 { #category : #'accessing-strings' }
@@ -106,7 +173,7 @@ FTPContext >> helpString [
 		commands sort withIndexDo: [ :each :index | 
 			stream nextPutAll: (each padded: #right to: 8 with: Character space).
 			index \\ 7 == 0 ifTrue: [ stream cr ] ].
-		stream nextPutAll: 'END' ].
+		stream cr; nextPutAll: 'END' ].
 ]
 
 { #category : #testing }
@@ -116,60 +183,15 @@ FTPContext >> isDirectory [
 
 { #category : #testing }
 FTPContext >> isFile [
-	^ self children isNil.
-]
-
-{ #category : #'testing-permissions' }
-FTPContext >> isGroupExecutable [
-	^ self isUserExecutable.
-]
-
-{ #category : #'testing-permissions' }
-FTPContext >> isGroupReadable [
-	^ self isUserReadable.
-]
-
-{ #category : #'testing-permissions' }
-FTPContext >> isGroupWriteable [
-	^ self isUserWriteable.
-]
-
-{ #category : #'testing-permissions' }
-FTPContext >> isOtherExecutable [
-	^ self isGroupExecutable.
-]
-
-{ #category : #'testing-permissions' }
-FTPContext >> isOtherReadable [
-	^ self isGroupReadable.
-]
-
-{ #category : #'testing-permissions' }
-FTPContext >> isOtherWriteable [
-	^ self isGroupWriteable.
-]
-
-{ #category : #'testing-permissions' }
-FTPContext >> isUserExecutable [
-	^ self isDirectory.
-]
-
-{ #category : #'testing-permissions' }
-FTPContext >> isUserReadable [
-	^ true.
-]
-
-{ #category : #'testing-permissions' }
-FTPContext >> isUserWriteable [
-	^ self isFile.
+	^ self isDirectory not.
 ]
 
 { #category : #convenience }
 FTPContext >> lookup: aString [
 	| stream name next |
-	aString isEmpty 
+	(aString isEmpty or: [ aString = '.' ])
 		ifTrue: [ ^ self ].
-	aString first = $/ 
+	aString first = $/
 		ifTrue: [ ^ self root lookup: aString allButFirst ].
 	stream := aString readStream.
 	name := stream upTo: $/.
@@ -192,6 +214,13 @@ FTPContext >> name [
 	" Return the file-name/label of the receiver. "
 	
 	^ self printString.
+]
+
+{ #category : #'accessing-strings' }
+FTPContext >> ownerName [
+	" Return the name of the user owning the receiver. "
+	
+	^ 'ftp'
 ]
 
 { #category : #accessing }
@@ -307,13 +336,6 @@ FTPContext >> updateAuthentication: aRequest [
 	" This message will be sent whenever a new username or password is given. "
 ]
 
-{ #category : #'accessing-strings' }
-FTPContext >> userName [
-	" Return the name of the user owning the receiver. "
-	
-	^ 'ftp'
-]
-
 { #category : #events }
 FTPContext >> walkbackException: anException [
 	" This message is called whenever an unexpected situation occurs. The default implementation returns a stack trace of the context where anException occured. "
@@ -329,5 +351,7 @@ FTPContext >> walkbackException: anException [
 
 { #category : #'accessing-strings' }
 FTPContext >> welcomeString [
+	" Return a welcome string to be displayed when a new session is started. "
+
 	^ 'SqueakFTP ready'
 ]

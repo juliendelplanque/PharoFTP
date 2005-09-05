@@ -19,5 +19,5 @@ FTPSiteVerb >> execute [
 		in: self session
 		for: (FTPRequest readFrom: self request argument)
 		ifAbsent: [self return: FTPResponse invalidCommand ].
-	command execute.
+	self return: command execute.
 ]

@@ -1,6 +1,6 @@
 Class {
 	#name : #FTPMlsdVerb,
-	#superclass : #FTPMlstVerb,
+	#superclass : #FTPModernListing,
 	#category : 'FTP-Verbs'
 }
 
@@ -11,5 +11,6 @@ FTPMlsdVerb class >> verbs [
 
 { #category : #accessing }
 FTPMlsdVerb >> children [
-	^ Array with: self context.
+	^ (self findContext: self request argument type: #directory)
+		children.
 ]

@@ -9,7 +9,7 @@ Class {
 
 { #category : #accessing }
 FTPNoopVerb class >> verbs [
-	^ Array with: 'NOOP'.
+	^ Array with: 'ALLO' with: 'NOOP'.
 ]
 
 { #category : #processing }

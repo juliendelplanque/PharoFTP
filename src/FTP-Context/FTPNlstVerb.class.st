@@ -1,6 +1,6 @@
 Class {
 	#name : #FTPNlstVerb,
-	#superclass : #FTPListingVerb,
+	#superclass : #FTPListing,
 	#category : 'FTP-Verbs'
 }
 
@@ -9,12 +9,8 @@ FTPNlstVerb class >> verbs [
 	^ Array with: 'NLST'.
 ]
 
-{ #category : #accessing }
-FTPNlstVerb >> padding [
-	^ #( none ).
-]
-
-{ #category : #accessing }
-FTPNlstVerb >> selectors [
-	^ #( nameOf: ).
+{ #category : #printing }
+FTPNlstVerb >> printContext: aContext on: aStream [
+	self printName: aContext on: aStream.
+	aStream nextPutAll: String crlf.
 ]

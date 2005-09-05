@@ -9,7 +9,7 @@ Class {
 
 { #category : #accessing }
 FTPCwdVerb class >> verbs [
-	^ Array with: 'CWD'.
+	^ Array with: 'CWD' with: 'XCWD'.
 ]
 
 { #category : #processing }

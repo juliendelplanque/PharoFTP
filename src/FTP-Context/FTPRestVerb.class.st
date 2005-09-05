@@ -12,6 +12,11 @@ Class {
 }
 
 { #category : #accessing }
+FTPRestVerb class >> features [
+	^ Array with: 'REST STREAM'.
+]
+
+{ #category : #accessing }
 FTPRestVerb class >> verbs [
 	^ Array with: 'REST'.
 ]
@@ -21,5 +26,5 @@ FTPRestVerb >> execute [
 	self request argument isAllDigits
 		ifFalse: [ self return: (FTPResponse invalidParamter) ].
 	self state position: (self request argument asInteger ifNil: [ 0 ]).
-	self return: (FTPResponse code: 350 string: 'Start position set to ' , self state position asString).
+	self return: (FTPResponse code: 350 string: 'Restarting at ' , self state position asString).
 ]

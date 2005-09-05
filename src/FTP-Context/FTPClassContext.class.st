@@ -33,6 +33,11 @@ FTPClassContext >> flush [
 	children := nil.
 ]
 
+{ #category : #testing }
+FTPClassContext >> isDirectory [
+	^ true
+]
+
 { #category : #accessing }
 FTPClassContext >> name [
 	^ self actualClass name asString.

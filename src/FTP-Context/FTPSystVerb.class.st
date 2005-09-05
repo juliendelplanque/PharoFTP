@@ -3,7 +3,7 @@ A SYST request asks for information about the server's operating system. The ser
 "
 Class {
 	#name : #FTPSystVerb,
-	#superclass : #FTPInformationVerb,
+	#superclass : #FTPInformation,
 	#category : 'FTP-Verbs'
 }
 
