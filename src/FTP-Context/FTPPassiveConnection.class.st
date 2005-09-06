@@ -1,5 +1,5 @@
 Class {
 	#name : #FTPPassiveConnection,
-	#superclass : #FTPForkedConnection,
+	#superclass : #FTPConnection,
 	#category : 'FTP-Server'
 }

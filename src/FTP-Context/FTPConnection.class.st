@@ -28,11 +28,6 @@ FTPConnection >> isConnected [
 ]
 
 { #category : #actions }
-FTPConnection >> open [
-	self subclassResponsibility.
-]
-
-{ #category : #actions }
 FTPConnection >> run: aBlock [
 	aBlock ensure: [ self close ].
 ]

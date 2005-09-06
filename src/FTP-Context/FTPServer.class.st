@@ -29,7 +29,7 @@ FTPServer class >> initialize [
 
 { #category : #private }
 FTPServer class >> removeServer: aServer [
-	self servers remove: aServer.
+	self servers remove: aServer ifAbsent: nil.
 ]
 
 { #category : #private }

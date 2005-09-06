@@ -38,6 +38,18 @@ FTPResponse class >> error: aString [
 	^ self code: 500 string: aString.
 ]
 
+{ #category : #'instance creation' }
+FTPResponse class >> fromString: aStream [
+	| code lines |
+	code := aStream next: 3.
+	code isAllDigits 
+		ifFalse: [ self error: 'Invalid status code: ' , code ].
+	lines := OrderedCollection new.
+	[ aStream atEnd ]
+		whileFalse: [ lines add: (aStream next; nextLine) ].
+	^ self code: code asInteger lines: lines.
+]
+
 { #category : #rejecting }
 FTPResponse class >> invalidCommand [
 	"The server does not like the command."
