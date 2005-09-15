@@ -1,50 +1,56 @@
 Class {
 	#name : #FTPClassContext,
-	#superclass : #FTPAuthenticatedContext,
+	#superclass : #FTPSmalltalkContext,
 	#instVars : [
-		'actualClass',
-		'actuaClass'
+		'children'
 	],
-	#category : #'FTP-Context'
+	#category : 'FTP-Context'
 }
 
-{ #category : #'as yet unclassified' }
-FTPClassContext >> actualClass [ 
-	^ actualClass ifNil: [ actuaClass := ProtoObject ]
+{ #category : #accessing }
+FTPClassContext >> children [
+	^ children ifNil: [
+		children := Array streamContents: [ :stream |
+			self actualClass subclasses do: [ :each |
+				stream nextPut: ((FTPClassContext parent: self)
+					setActualClass: each;
+					yourself) ].
+			self actualClass selectors do: [ :each |
+				stream nextPut: ((FTPMethodContext parent: self)
+					setActualClass: self actualClass;
+					setSelector: each;
+					yourself) ].
+			self actualClass class selectors do: [ :each |
+				stream nextPut: ((FTPMethodContext parent: self)
+					setActualClass: self actualClass class;
+					setSelector: each;
+					yourself) ] ] ].
 ]
 
-{ #category : #'as yet unclassified' }
-FTPClassContext >> actualClass: aClass [
-	actualClass := aClass
+{ #category : #events }
+FTPClassContext >> flush [
+	super flush.
+	children := nil.
 ]
 
-{ #category : #'as yet unclassified' }
-FTPClassContext >> changeToParent [
-	^ self species new
-		actualClass: self actualClass superclass;
-		yourself.
+{ #category : #testing }
+FTPClassContext >> isDirectory [
+	^ true
 ]
 
-{ #category : #'as yet unclassified' }
-FTPClassContext >> changeWorkingDirectory: aString [
-	^ self species new
-		actualClass: (Smalltalk at: aString asSymbol);
-		yourself.
+{ #category : #accessing }
+FTPClassContext >> name [
+	^ self actualClass name asString.
 ]
 
-{ #category : #'as yet unclassified' }
-FTPClassContext >> listTo: aSession [
-	self actualClass subclasses do: [ :each |
-		aSession write: each name ].
-	self actualClass selectors do: [ :each |
-		aSession write: each ].
-]
-
-{ #category : #'as yet unclassified' }
-FTPClassContext >> workingDirectory [
-	^ String streamContents: [ :stream |
-		stream nextPut: $/.
-		self actualClass withAllSuperclasses allButLast reverse
-			do: [ :each | stream nextPutAll: each asString ]
-			separatedBy: [ stream nextPut: $/ ] ].
+{ #category : #events }
+FTPClassContext >> unknownRequest: aRequest [ 
+	aRequest verb = 'EVAL' ifTrue: [
+		self session return: (FTPResponse
+			code: 200
+			string: (Compiler 
+				evaluate: aRequest argument
+				for: self actualClass
+				logged: false) asString) ].
+	super unknownRequest: aRequest.
 ]
