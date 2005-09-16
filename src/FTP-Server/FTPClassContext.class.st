@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'children'
 	],
-	#category : 'FTP-Context'
+	#category : #'FTP-Context'
 }
 
 { #category : #accessing }

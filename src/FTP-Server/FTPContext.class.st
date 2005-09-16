@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'parent'
 	],
-	#category : 'FTP-Context'
+	#category : #'FTP-Context'
 }
 
 { #category : #'instance-creation' }

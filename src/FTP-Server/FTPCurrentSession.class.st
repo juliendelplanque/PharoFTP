@@ -1,7 +1,7 @@
 Class {
 	#name : #FTPCurrentSession,
 	#superclass : #Notification,
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #'as yet unclassified' }

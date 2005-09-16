@@ -4,7 +4,7 @@ A CWD request has a nonempty parameter giving an encoded pathname. It asks the s
 Class {
 	#name : #FTPCwdVerb,
 	#superclass : #FTPVerb,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

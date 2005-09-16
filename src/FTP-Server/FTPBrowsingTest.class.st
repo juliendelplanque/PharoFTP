@@ -1,7 +1,7 @@
 Class {
 	#name : #FTPBrowsingTest,
 	#superclass : #FTPTestCase,
-	#category : 'FTP-Testing'
+	#category : #'FTP-Testing'
 }
 
 { #category : #'testing-settings' }

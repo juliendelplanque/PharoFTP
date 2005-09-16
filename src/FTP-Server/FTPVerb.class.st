@@ -9,7 +9,7 @@ Class {
 		'Features',
 		'Verbs'
 	],
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

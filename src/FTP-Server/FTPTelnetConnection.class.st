@@ -36,5 +36,5 @@ FTPTelnetConnection >> run: aBlock [
 	process := [ aBlock ensure: [ self session close ] ]
 		forkAt: self settings priority
 		named: (self settings 
-			nameFor: 'session').
+			nameFor: 'Session').
 ]

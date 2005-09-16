@@ -4,7 +4,7 @@ A USER request has a parameter showing a username. Subsequent pathnames are inte
 Class {
 	#name : #FTPUserVerb,
 	#superclass : #FTPAuthentication,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

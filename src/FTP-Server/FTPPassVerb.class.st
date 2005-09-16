@@ -4,7 +4,7 @@ A PASS request has a parameter called a password. The client must not send a PAS
 Class {
 	#name : #FTPPassVerb,
 	#superclass : #FTPAuthentication,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

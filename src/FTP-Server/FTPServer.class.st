@@ -12,13 +12,28 @@ Class {
 	#classVars : [
 		'Servers'
 	],
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #initialization }
 FTPServer class >> initialize [
 	Smalltalk addToStartUpList: self.
 	Smalltalk addToShutDownList: self.
+]
+
+{ #category : #'instance-creation' }
+FTPServer class >> on: anInteger [
+	^ self on: anInteger context: FTPDispatcher new.
+]
+
+{ #category : #'instance-creation' }
+FTPServer class >> on: anInteger context: aContext [
+	| server |
+	server := self new.
+	server settings
+		port: anInteger;
+		context: aContext.
+	^ server.
 ]
 
 { #category : #accessing }
@@ -31,19 +46,14 @@ FTPServer class >> shutDown [
 	self servers do: [ :each | each shutDown ].
 ]
 
-{ #category : #starting }
+{ #category : #'instance-creation' }
 FTPServer class >> startOn: aNumber [
-	^ self startOn: aNumber context: FTPDispatcher new.
+	^ (self on: aNumber) start.
 ]
 
-{ #category : #starting }
+{ #category : #'instance-creation' }
 FTPServer class >> startOn: aNumber context: aContext [
-	| server |
-	server := self new.
-	server settings
-		port: aNumber;
-		context: aContext.
-	^ server start.
+	^ (self on: aNumber context: aContext) start.
 ]
 
 { #category : #initialization }

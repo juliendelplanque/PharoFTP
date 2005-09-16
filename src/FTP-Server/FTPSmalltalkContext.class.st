@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'actualClass'
 	],
-	#category : 'FTP-Context'
+	#category : #'FTP-Context'
 }
 
 { #category : #accessing }

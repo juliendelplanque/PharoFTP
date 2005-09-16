@@ -4,7 +4,7 @@ The SITE verb allows servers to provide server-defined extensions without any ri
 Class {
 	#name : #FTPSiteVerb,
 	#superclass : #FTPVerb,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

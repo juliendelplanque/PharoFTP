@@ -6,7 +6,7 @@ Two commands are defined, MLST which provides data about exactly the object name
 Class {
 	#name : #FTPModernListing,
 	#superclass : #FTPListing,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

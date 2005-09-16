@@ -6,7 +6,7 @@ Class {
 		'children',
 		'contents'
 	],
-	#category : 'FTP-Testing'
+	#category : #'FTP-Testing'
 }
 
 { #category : #accessing }

@@ -1,7 +1,7 @@
 Class {
 	#name : #FTPTransfer,
 	#superclass : #FTPVerb,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #private }

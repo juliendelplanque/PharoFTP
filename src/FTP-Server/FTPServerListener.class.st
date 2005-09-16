@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'server'
 	],
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #'instance-creation' }

@@ -5,7 +5,7 @@ Class {
 		'process',
 		'listener'
 	],
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #'accessing-settings' }

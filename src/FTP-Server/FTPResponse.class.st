@@ -5,7 +5,7 @@ Class {
 		'code',
 		'lines'
 	],
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #'instance creation' }

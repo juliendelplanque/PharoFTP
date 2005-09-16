@@ -7,7 +7,7 @@ Class {
 		'modification',
 		'creation'
 	],
-	#category : 'FTP-Context'
+	#category : #'FTP-Context'
 }
 
 { #category : #'accessing-contents' }

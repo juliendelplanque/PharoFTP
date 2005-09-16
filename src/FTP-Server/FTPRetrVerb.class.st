@@ -12,7 +12,7 @@ The server is obliged to close the data connection in each of these cases. The c
 Class {
 	#name : #FTPRetrVerb,
 	#superclass : #FTPTransfer,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

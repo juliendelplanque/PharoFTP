@@ -8,7 +8,7 @@ The server will set the start position to 0 after a successful RETR, but might n
 Class {
 	#name : #FTPRestVerb,
 	#superclass : #FTPVerb,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

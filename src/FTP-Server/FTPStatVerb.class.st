@@ -4,7 +4,7 @@ A STAT request asks for human-readable information about the server's status. Th
 Class {
 	#name : #FTPStatVerb,
 	#superclass : #FTPInformation,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

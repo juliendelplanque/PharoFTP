@@ -4,7 +4,7 @@ MODE is obsolete. The server should accept MODE S (in any combination of lowerca
 Class {
 	#name : #FTPModeVerb,
 	#superclass : #FTPVerb,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

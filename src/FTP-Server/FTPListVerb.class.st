@@ -1,7 +1,7 @@
 Class {
 	#name : #FTPListVerb,
 	#superclass : #FTPListing,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

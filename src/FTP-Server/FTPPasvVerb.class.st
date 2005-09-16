@@ -7,7 +7,7 @@ Normally the client will connect to this TCP port, from the same IP address that
 Class {
 	#name : #FTPPasvVerb,
 	#superclass : #FTPVerb,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

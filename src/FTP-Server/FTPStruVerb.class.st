@@ -4,7 +4,7 @@ STRU is obsolete. The server should accept STRU F (in any combination of lowerca
 Class {
 	#name : #FTPStruVerb,
 	#superclass : #FTPVerb,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

@@ -1,7 +1,7 @@
 Class {
 	#name : #FTPMessage,
 	#superclass : #Object,
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #printing }

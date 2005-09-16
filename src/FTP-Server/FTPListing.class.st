@@ -4,7 +4,7 @@ A directory is a list of files. It typically includes a name, type, size, and mo
 Class {
 	#name : #FTPListing,
 	#superclass : #FTPVerb,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'properties'
 	],
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #initialization }

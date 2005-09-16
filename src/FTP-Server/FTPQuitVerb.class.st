@@ -6,7 +6,7 @@ An unexpected close on the control connection will cause the server to take the 
 Class {
 	#name : #FTPQuitVerb,
 	#superclass : #FTPVerb,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

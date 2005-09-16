@@ -5,7 +5,7 @@ Class {
 		'verb',
 		'argument'
 	],
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #'instance creation' }

@@ -4,7 +4,7 @@ This command does not affect any parameters or previously entered commands. It s
 Class {
 	#name : #FTPNoopVerb,
 	#superclass : #FTPVerb,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

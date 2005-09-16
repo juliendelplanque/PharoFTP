@@ -6,7 +6,7 @@ Class {
 		'node',
 		'children'
 	],
-	#category : 'FTP-Context-Experimental'
+	#category : #'FTP-Context-Experimental'
 }
 
 { #category : #'instance-creation' }

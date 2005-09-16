@@ -6,7 +6,7 @@ The server may accept a CDUP request using code 200 or 250. (RFC 959 says that c
 Class {
 	#name : #FTPCdupVerb,
 	#superclass : #FTPVerb,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

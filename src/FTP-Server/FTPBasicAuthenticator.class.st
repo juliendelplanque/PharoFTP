@@ -1,5 +1,5 @@
 Class {
 	#name : #FTPBasicAuthenticator,
 	#superclass : #FTPAuthenticator,
-	#category : 'FTP-Authenticator'
+	#category : #'FTP-Authenticator'
 }

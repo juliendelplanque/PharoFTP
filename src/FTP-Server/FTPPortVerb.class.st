@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'numbers'
 	],
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }

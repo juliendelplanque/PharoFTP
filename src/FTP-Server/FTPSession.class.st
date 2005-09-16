@@ -10,7 +10,7 @@ Class {
 		'data',
 		'escaper'
 	],
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #'connection-data' }

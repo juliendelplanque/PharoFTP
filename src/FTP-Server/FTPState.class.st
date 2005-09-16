@@ -1,7 +1,7 @@
 Class {
 	#name : #FTPState,
 	#superclass : #FTPProperties,
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #authentication }

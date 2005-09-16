@@ -5,7 +5,7 @@ Class {
 		'owner',
 		'entry'
 	],
-	#category : 'FTP-Context'
+	#category : #'FTP-Context'
 }
 
 { #category : #accessing }

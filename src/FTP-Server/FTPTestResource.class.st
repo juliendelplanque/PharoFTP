@@ -5,7 +5,7 @@ Class {
 		'server',
 		'client'
 	],
-	#category : 'FTP-Testing'
+	#category : #'FTP-Testing'
 }
 
 { #category : #accessing }
@@ -59,6 +59,11 @@ FTPTestResource >> isServerConnected [
 	^ self server notNil and: [ self server isConnected ].
 ]
 
+{ #category : #'accessing-config' }
+FTPTestResource >> name [
+	^ 'FTP-Test'
+]
+
 { #category : #actions }
 FTPTestResource >> open [
 	client := FTPClient openOnHost: self ip port: self port.
@@ -82,7 +87,9 @@ FTPTestResource >> server [
 
 { #category : #running }
 FTPTestResource >> setUp [
-	server := FTPServer startOn: self port context: self context.
+	server := FTPServer on: self port context: self context.
+	server settings name: self name.
+	server start.
 ]
 
 { #category : #running }

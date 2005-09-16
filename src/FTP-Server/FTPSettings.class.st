@@ -1,7 +1,7 @@
 Class {
 	#name : #FTPSettings,
 	#superclass : #FTPProperties,
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #server }

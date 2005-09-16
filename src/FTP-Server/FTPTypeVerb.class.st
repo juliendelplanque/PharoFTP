@@ -9,7 +9,7 @@ L 8 - Turn the binary flag on.
 Class {
 	#name : #FTPTypeVerb,
 	#superclass : #FTPVerb,
-	#category : 'FTP-Verbs'
+	#category : #'FTP-Verbs'
 }
 
 { #category : #accessing }
