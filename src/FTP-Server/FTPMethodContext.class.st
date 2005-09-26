@@ -78,3 +78,8 @@ FTPMethodContext >> setSelector: aSelector [
 	selector := aSelector.
 	self flush.
 ]
+
+{ #category : #accessing }
+FTPMethodContext >> size [
+	^ self contents size.
+]
