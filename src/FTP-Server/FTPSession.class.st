@@ -121,9 +121,10 @@ FTPSession >> printOn: aStream [
 FTPSession >> response: aResponse [
 	aResponse isNil ifTrue: [ ^ self ].
 	aResponse writeOn: self telnet.
-	self telnet flush.
+	[ self telnet flush ]
+		on: ConnectionTimedOut 
+		do: [ :err | ^ self ].
 	self performLogging: aResponse.
-
 ]
 
 { #category : #processing }

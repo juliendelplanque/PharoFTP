@@ -37,5 +37,5 @@ FTPListVerb >> print: aCollection on: aStream [
 
 { #category : #accessing }
 FTPListVerb >> selectors [
-	^ #( printMode:on: printReferences:on:  printOwner:on: printGroup:on: printSize:on: printTimestamp:on: printName:on: ).
+	^ #( printMode:on: printReferences:on: printOwner:on: printGroup:on: printSize:on: printTimestamp:on: printName:on: ).
 ]

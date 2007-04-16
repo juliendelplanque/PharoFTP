@@ -73,7 +73,7 @@ FTPListing >> printReferences: aContext on: aStream [
 
 { #category : #printing }
 FTPListing >> printSize: aContext on: aStream [
-	[ aStream print: aContext size. ] ifError: [ self halt. ]
+	aStream print: aContext size.
 ]
 
 { #category : #printing }

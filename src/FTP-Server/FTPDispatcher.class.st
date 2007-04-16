@@ -22,7 +22,6 @@ FTPDispatcher >> children [
 FTPDispatcher >> initialize [
 	super initialize.
 	children := Set new.
-	name := self asString.
 ]
 
 { #category : #copying }

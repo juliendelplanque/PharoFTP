@@ -1,6 +1,6 @@
 Class {
 	#name : #FTPSessionStream,
-	#superclass : #SocketStream,
+	#superclass : #FastSocketStream,
 	#instVars : [
 		'session'
 	],
@@ -12,6 +12,16 @@ FTPSessionStream class >> session: aSession on: aSocket [
 	^ (self on: aSocket)
 		setSession: aSession;
 		yourself.
+]
+
+{ #category : #initialization }
+FTPSessionStream >> initialize [
+	super initialize.
+]
+
+{ #category : #streaming }
+FTPSessionStream >> print: anObject [
+	anObject printOn: self.
 ]
 
 { #category : #actions }
