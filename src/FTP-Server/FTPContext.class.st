@@ -192,7 +192,7 @@ FTPContext >> isFile [
 { #category : #convenience }
 FTPContext >> lookup: aString [
 	| stream name next |
-	(aString isEmpty or: [ aString = '.' ])
+	(aString isEmpty or: [ aString = '.' ] or: [ aString = '-a' ])
 		ifTrue: [ ^ self ].
 	aString first = $/
 		ifTrue: [ ^ self root lookup: aString allButFirst ].

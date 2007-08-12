@@ -61,6 +61,11 @@ FTPServer class >> startUp [
 	Socket initializeNetwork.
 ]
 
+{ #category : #'instance-creation' }
+FTPServer class >> stopAll [
+	self servers do: [:ea | ea stop]
+]
+
 { #category : #initialization }
 FTPServer >> initialize [
 	super initialize.
