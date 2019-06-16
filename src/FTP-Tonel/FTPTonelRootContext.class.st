@@ -7,7 +7,8 @@ Class {
 { #category : #accessing }
 FTPTonelRootContext >> children [
 	^ (RPackage organizer packages sorted: #name asSortFunction) collect: [ :p |
-		(FTPTonelPackageContext packageConcerned: p)
+		(FTPPackageContext packageConcerned: p)
+			classContextClass: FTPTonelClassContext;
 			setParent: self;
 			yourself ]
 ]
