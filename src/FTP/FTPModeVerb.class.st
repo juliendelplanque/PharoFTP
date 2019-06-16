@@ -14,7 +14,7 @@ FTPModeVerb class >> verbs [
 
 { #category : #processing }
 FTPModeVerb >> execute [
-	self response: (self request normalized = 'S'
+	self return: (self request normalized = 'S'
 		ifFalse: [ FTPResponse unsupportedParameter ]
 		ifTrue: [ FTPResponse okay ]).
 ]

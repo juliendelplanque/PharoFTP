@@ -68,6 +68,11 @@ FTPListener >> listener [
 ]
 
 { #category : #'accessing-settings' }
+FTPListener >> name [
+	self subclassResponsibility.
+]
+
+{ #category : #'accessing-settings' }
 FTPListener >> port [
 	self subclassResponsibility.
 ]
@@ -91,7 +96,8 @@ FTPListener >> process [
 { #category : #actions }
 FTPListener >> start [
 	process := [ self listen ] 
-		forkAt: self priority.
+		forkAt: self priority
+		named: self name.
 ]
 
 { #category : #actions }

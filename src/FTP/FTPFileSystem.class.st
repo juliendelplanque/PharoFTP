@@ -10,7 +10,7 @@ Class {
 
 { #category : #accessing }
 FTPFileSystem >> creation [
-	^ TimeStamp fromSeconds: self entry second.
+	^ DateAndTime fromSeconds: self entry second.
 ]
 
 { #category : #'accessing-internal' }
@@ -35,7 +35,7 @@ FTPFileSystem >> fileClass [
 
 { #category : #accessing }
 FTPFileSystem >> modification [
-	^ TimeStamp fromSeconds: self entry third.
+	^ DateAndTime fromSeconds: self entry third.
 ]
 
 { #category : #accessing }

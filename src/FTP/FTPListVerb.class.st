@@ -27,15 +27,24 @@ FTPListVerb >> print: aCollection on: aStream [
 	lines do: [ :line |
 		(1 to: self selectors size) 
 			do: [ :index |
-				aStream nextPutAll: ((line at: index)	
-					padded: (self padding at: index)
-					to: (sizes at: index)
-					with: $ ) ]
+				(self padding at: index) = #none
+					ifTrue: [ 
+						aStream nextPutAll: (line at: index) ].
+				(self padding at: index) = #left
+					ifTrue: [ 
+						aStream nextPutAll: ((line at: index)	
+							padLeftTo: (sizes at: index)
+							with: Character space) ].
+				(self padding at: index) = #right
+					ifTrue: [ 
+						aStream nextPutAll: ((line at: index)	
+							padRightTo: (sizes at: index)
+							with: Character space) ] ]
 			separatedBy: [ aStream nextPut: Character space ].
 		aStream nextPutAll: String crlf ].
 ]
 
 { #category : #accessing }
 FTPListVerb >> selectors [
-	^ #( printMode:on: printReferences:on:  printOwner:on: printGroup:on: printSize:on: printTimestamp:on: printName:on: ).
+	^ #( printMode:on: printReferences:on: printOwner:on: printGroup:on: printSize:on: printTimestamp:on: printName:on: ).
 ]

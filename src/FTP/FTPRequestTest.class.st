@@ -6,30 +6,30 @@ Class {
 
 { #category : #testing }
 FTPRequestTest >> testCommand [
-	self assert: (FTPRequest readFrom: 'foo') command = 'foo'.
-	self assert: (FTPRequest readFrom: 'Foo') command = 'foo'.
-	self assert: (FTPRequest readFrom: 'FOO') command = 'foo'.
+	self assert: (FTPRequest readFrom: 'foo' readStream) command equals: 'foo'.
+	self assert: (FTPRequest readFrom: 'Foo' readStream) command equals: 'foo'.
+	self assert: (FTPRequest readFrom: 'FOO' readStream) command equals: 'foo'.
 ]
 
 { #category : #testing }
 FTPRequestTest >> testNoArgument [
-	self assert: (FTPRequest readFrom: 'a') verb = 'A'.
-	self assert: (FTPRequest readFrom: 'a') argument = ''.
+	self assert: (FTPRequest readFrom: 'a' readStream) verb = 'A'.
+	self assert: (FTPRequest readFrom: 'a' readStream) argument = ''.
 ]
 
 { #category : #testing }
 FTPRequestTest >> testParseLinefeed [
-	self assert: (FTPRequest readFrom: 'a b') verb = 'A'.
-	self assert: (FTPRequest readFrom: 'a b') argument = 'b'.
-	self assert: (FTPRequest readFrom: 'a b' , String lf) verb = 'A'.
-	self assert: (FTPRequest readFrom: 'a b' , String lf) argument = 'b'.
-	self assert: (FTPRequest readFrom: 'a b' , String crlf) verb = 'A'.
-	self assert: (FTPRequest readFrom: 'a b' , String crlf) argument = 'b'
+	self assert: (FTPRequest readFrom: 'a b' readStream) verb = 'A'.
+	self assert: (FTPRequest readFrom: 'a b' readStream) argument = 'b'.
+	self assert: (FTPRequest readFrom: ('a b' , String lf) readStream) verb = 'A'.
+	self assert: (FTPRequest readFrom: ('a b' , String lf) readStream) argument = 'b'.
+	self assert: (FTPRequest readFrom: ('a b' , String crlf) readStream) verb = 'A'.
+	self assert: (FTPRequest readFrom: ('a b' , String crlf) readStream) argument = 'b'
 ]
 
 { #category : #testing }
 FTPRequestTest >> testVerb [
-	self assert: (FTPRequest readFrom: 'foo') verb = 'FOO'.
-	self assert: (FTPRequest readFrom: 'Foo') verb = 'FOO'.
-	self assert: (FTPRequest readFrom: 'FOO') verb = 'FOO'
+	self assert: (FTPRequest readFrom: 'foo' readStream) verb = 'FOO'.
+	self assert: (FTPRequest readFrom: 'Foo' readStream) verb = 'FOO'.
+	self assert: (FTPRequest readFrom: 'FOO' readStream) verb = 'FOO'
 ]

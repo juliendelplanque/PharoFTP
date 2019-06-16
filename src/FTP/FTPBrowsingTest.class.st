@@ -25,13 +25,13 @@ FTPBrowsingTest >> testCwd [
 	self open.
 	
 	self client changeDirectoryTo: 'd1'.
-	self assert: self client pwd = '/d1'.
+	self assert: self client pwd equals: '/d1'.
 	
 	self client changeDirectoryTo: '/d2'.
-	self assert: self client pwd = '/d2'.
+	self assert: self client pwd equals: '/d2'.
 
 	self client changeDirectoryTo: '../d3'.
-	self assert: self client pwd = '/d3'.
+	self assert: self client pwd equals: '/d3'.
 
 ]
 
@@ -39,20 +39,20 @@ FTPBrowsingTest >> testCwd [
 FTPBrowsingTest >> testList [
 	self open.
 
-	self assert: (self client getDirectory includesSubString: 'd1').
-	self assert: (self client getDirectory includesSubString: 'd2').
-	self assert: (self client getDirectory includesSubString: 'd3').
-	self assert: (self client getDirectory includesSubString: 'f3').
+	self assert: (self client getDirectory includesSubstring: 'd1').
+	self assert: (self client getDirectory includesSubstring: 'd2').
+	self assert: (self client getDirectory includesSubstring: 'd3').
+	self assert: (self client getDirectory includesSubstring: 'f3').
 ]
 
 { #category : #'testing-navigation' }
 FTPBrowsingTest >> testNlst [
 	self open.
 	
-	self assert: (self client getFileList includesSubString: 'd1').
-	self assert: (self client getFileList includesSubString: 'd2').
-	self assert: (self client getFileList includesSubString: 'd3').
-	self assert: (self client getFileList includesSubString: 'f3').
+	self assert: (self client getFileList includesSubstring: 'd1').
+	self assert: (self client getFileList includesSubstring: 'd2').
+	self assert: (self client getFileList includesSubstring: 'd3').
+	self assert: (self client getFileList includesSubstring: 'f3').
 ]
 
 { #category : #'testing-connection' }

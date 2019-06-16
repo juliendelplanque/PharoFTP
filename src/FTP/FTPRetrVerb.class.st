@@ -27,7 +27,13 @@ FTPRetrVerb >> cleanup: aContext [
 
 { #category : #private }
 FTPRetrVerb >> lookup [
-	^ self findContext: self request argument type: #file.
+	| context |
+	context := self 
+		findContext: self request argument 
+		type: #file.
+	context canRead
+		ifFalse: [ self return: FTPResponse permissionDenied ].
+	^ context.
 ]
 
 { #category : #private }

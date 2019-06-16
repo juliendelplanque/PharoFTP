@@ -4,12 +4,13 @@ Class {
 	#instVars : [
 		'server',
 		'context',
+		'authenticator',
 		'state',
 		'telnet',
 		'data',
 		'escaper'
 	],
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #'instance creation' }
@@ -24,7 +25,7 @@ FTPSession class >> on: aSocket context: aContext [
 FTPSession >> activeDataConnection [
 	self isDataConnected
 		ifTrue: [ self data close ].
-	self setData: (FTPActiveConnection on: Socket newTCP).
+	self setData: (FTPActiveConnection session: self on: Socket newTCP).
 	self data socket
 		connectTo: self state ip port: self state port
 		waitForConnectionFor: self settings timeout.
@@ -66,14 +67,12 @@ FTPSession >> data [
 
 { #category : #processing }
 FTPSession >> handlerLoop [
-	| request response |
-	self response: FTPResponse ready.
+	| request |
+	self response: (FTPResponse code: 220 string: self context welcomeString).
 	[ self telnet isConnected ] whileTrue: [
-		request := FTPRequest readFrom: self telnet stream.
-		request command notEmpty ifTrue: [
-			response := self responseForRequest: request.
-			response notNil 
-				ifTrue: [ self response: response ] ] ].
+		request := FTPRequest readFrom: self telnet.
+		self response: (self responseForRequest: request) ].
+	self close.
 ]
 
 { #category : #initialization }
@@ -96,10 +95,8 @@ FTPSession >> isTelnetConnected [
 FTPSession >> passiveDataConnection [
 	self isDataConnected
 		ifTrue: [ self data close ].
-	self setData: (FTPPassiveConnection on: Socket newTCP).
-	self data socket 
-		listenOn: self state port 
-		backlogSize: 0.
+	self setData: (FTPPassiveConnection session: self on: Socket newTCP).
+	self data socket listenOn: self state port backlogSize: 0.
 ]
 
 { #category : #processing }
@@ -131,10 +128,11 @@ FTPSession >> printOn: aStream [
 { #category : #'connection-telnet' }
 FTPSession >> response: aResponse [
 	aResponse isNil ifTrue: [ ^ self ].
-	aResponse writeOn: self telnet stream.
-	self telnet stream flush.
+	aResponse writeOn: self telnet.
+	[ self telnet flush ]
+		on: ConnectionTimedOut 
+		do: [ :err | ^ self ].
 	self performLogging: aResponse.
-
 ]
 
 { #category : #processing }
@@ -183,7 +181,7 @@ FTPSession >> setServer: aServer [
 
 { #category : #initialization }
 FTPSession >> setSocket: aSocket [
-	telnet := FTPTelnetConnection on: aSocket.
+	telnet := FTPTelnetConnection session: self on: aSocket.
 ]
 
 { #category : #'accessing-reading' }
@@ -223,13 +221,9 @@ FTPSession >> withSessionDo: aBlock [
 
 { #category : #'connection-data' }
 FTPSession >> withStreamDo: aBlock [
-	self isDataConnected
-		ifTrue: [ self data close ].
-	self setData: (self state passive
-		ifTrue: [ FTPPassiveConnection ]
-		ifFalse: [ FTPActiveConnection ]) tcp.
-	self state passive
-		ifFalse: [ self data socket connectTo: self state ip port: self state port ]
-		ifTrue: [ self data socket listenOn: self state port backlogSize: self server backlog ].
-	self data run: [ aBlock value: self data stream ].
+	self state isPassive
+		ifFalse: [ self activeDataConnection ].
+	self data isConnected 
+		ifFalse: [ self error: 'Invalid data connection.' ].
+	self data run: [ aBlock value: self data ].
 ]

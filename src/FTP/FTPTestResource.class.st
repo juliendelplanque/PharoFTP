@@ -46,7 +46,7 @@ FTPTestResource >> context [
 
 { #category : #'accessing-config' }
 FTPTestResource >> ip [
-	^ ByteArray with: 127 with: 0 with: 0 with: 1.
+	^ #[127 0 0 1] asSocketAddress
 ]
 
 { #category : #testing }
@@ -59,9 +59,14 @@ FTPTestResource >> isServerConnected [
 	^ self server notNil and: [ self server isConnected ].
 ]
 
+{ #category : #'accessing-config' }
+FTPTestResource >> name [
+	^ 'FTP-Test'
+]
+
 { #category : #actions }
 FTPTestResource >> open [
-	client := FTPClient openOnHost: self ip port: self port.
+	
 ]
 
 { #category : #'accessing-config' }
@@ -82,7 +87,12 @@ FTPTestResource >> server [
 
 { #category : #running }
 FTPTestResource >> setUp [
-	server := FTPServer startOn: self port context: self context.
+	super setUp.
+	server := FTPServer on: self port context: self context.
+	server settings name: self name.
+	server start.
+	100 milliSeconds wait.
+	client := FTPClient openOnHost: self ip port: self port.
 ]
 
 { #category : #running }
@@ -91,4 +101,5 @@ FTPTestResource >> tearDown [
 		ifTrue: [ self client close ].
 	self isServerConnected
 		ifTrue: [ self server stop ].
+	super tearDown
 ]

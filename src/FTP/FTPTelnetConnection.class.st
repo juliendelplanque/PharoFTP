@@ -1,10 +1,10 @@
 Class {
 	#name : #FTPTelnetConnection,
-	#superclass : #FTPConnection,
+	#superclass : #FTPSessionStream,
 	#instVars : [
 		'process'
 	],
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #'instance creation' }
@@ -33,6 +33,8 @@ FTPTelnetConnection >> process [
 
 { #category : #actions }
 FTPTelnetConnection >> run: aBlock [
-	process := [ super run: aBlock ] 
-		fork.
+	process := [ aBlock ensure: [ self session close ] ]
+		forkAt: self settings priority
+		named: (self settings 
+			nameFor: 'Session').
 ]

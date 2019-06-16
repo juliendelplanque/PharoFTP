@@ -25,6 +25,11 @@ FTPServerListener >> handle: aSocket [
 ]
 
 { #category : #accessing }
+FTPServerListener >> name [
+	^ server settings name.
+]
+
+{ #category : #accessing }
 FTPServerListener >> port [
 	^ server settings port.
 ]

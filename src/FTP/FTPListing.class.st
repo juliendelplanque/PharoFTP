@@ -18,8 +18,7 @@ FTPListing >> children [
 
 { #category : #processing }
 FTPListing >> execute [
-	(FTPResponse code: 150)
-		writeOn: self session telnet stream.
+	self response: (FTPResponse code: 150).
 	self session withStreamDo: [ :stream |
 		self print: self children on: stream ].
 	self return: (FTPResponse code: 226).
@@ -74,17 +73,17 @@ FTPListing >> printReferences: aContext on: aStream [
 
 { #category : #printing }
 FTPListing >> printSize: aContext on: aStream [
-	[ aStream print: aContext size. ] ifError: [ self halt. ]
+	aStream print: aContext size.
 ]
 
 { #category : #printing }
 FTPListing >> printTimestamp: aContext on: aStream [
 	aContext modification in: [ :timestamp |
 		aStream nextPutAll: (timestamp monthName copyFrom: 1 to: 3); space.
-		aStream nextPutAll: (timestamp daysInMonth asString padded: #left to: 2 with: $ ); space.
-		86400 * timestamp asYear daysInYear + timestamp asSeconds < TimeStamp now asSeconds
-			ifTrue: [ aStream nextPutAll: (timestamp year asString padded: #left to: 4 with: $ ) ]
+		aStream nextPutAll: (timestamp daysInMonth asString padLeftTo: 2 with: $ ); space.
+		86400 * timestamp asYear daysInYear + timestamp asSeconds < DateAndTime now asSeconds
+			ifTrue: [ aStream nextPutAll: (timestamp year asString padLeftTo: 4 with: $ ) ]
 			ifFalse: [
-				aStream nextPutAll: (timestamp hours asString padded: #left to: 2 with: $0); nextPut: $:.
-				aStream nextPutAll: (timestamp minutes asString padded: #left to: 2 with: $0) ] ].
+				aStream nextPutAll: (timestamp hours asString padLeftTo: 2 with: $0); nextPut: $:.
+				aStream nextPutAll: (timestamp minutes asString padLeftTo: 2 with: $0) ] ].
 ]

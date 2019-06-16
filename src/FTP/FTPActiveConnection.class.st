@@ -1,5 +1,5 @@
 Class {
 	#name : #FTPActiveConnection,
-	#superclass : #FTPConnection,
-	#category : 'FTP-Server'
+	#superclass : #FTPSessionStream,
+	#category : #'FTP-Server'
 }

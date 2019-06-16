@@ -7,13 +7,12 @@ Class {
 	#instVars : [
 		'settings',
 		'listener',
-		'process',
 		'sessions'
 	],
 	#classVars : [
 		'Servers'
 	],
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #private }
@@ -21,10 +20,25 @@ FTPServer class >> addServer: aServer [
 	self servers add: aServer.
 ]
 
-{ #category : #'class initialization' }
+{ #category : #initialization }
 FTPServer class >> initialize [
 	Smalltalk addToStartUpList: self.
 	Smalltalk addToShutDownList: self.
+]
+
+{ #category : #'instance-creation' }
+FTPServer class >> on: anInteger [
+	^ self on: anInteger context: FTPDispatcher new.
+]
+
+{ #category : #'instance-creation' }
+FTPServer class >> on: anInteger context: aContext [
+	| server |
+	server := self new.
+	server settings
+		port: anInteger;
+		context: aContext.
+	^ server.
 ]
 
 { #category : #private }
@@ -32,14 +46,14 @@ FTPServer class >> removeServer: aServer [
 	self servers remove: aServer.
 ]
 
-{ #category : #private }
+{ #category : #accessing }
 FTPServer class >> servers [
 	^ Servers ifNil: [ Servers := Set new ].
 ]
 
-{ #category : #private }
+{ #category : #initialization }
 FTPServer class >> shutDown [
-	 self servers do: [ :each | each stop ].
+	self servers do: [ :each | each shutDown ].
 ]
 
 { #category : #'instance creation' }
@@ -49,24 +63,24 @@ FTPServer class >> start [
 		yourself.
 ]
 
-{ #category : #starting }
+{ #category : #'instance-creation' }
 FTPServer class >> startOn: aNumber [
-	^ self startOn: aNumber context: FTPDispatcher new.
+	^ (self on: aNumber) start.
 ]
 
-{ #category : #'instance creation' }
+{ #category : #'instance-creation' }
 FTPServer class >> startOn: aNumber context: aContext [
-	| server |
-	server := self new.
-	server settings
-		port: aNumber;
-		context: aContext.
-	^ server start.
+	^ (self on: aNumber context: aContext) start.
 ]
 
-{ #category : #private }
+{ #category : #initialization }
 FTPServer class >> startUp [
-	self servers do: [ :each | each start ].
+	Socket initializeNetwork.
+]
+
+{ #category : #'instance-creation' }
+FTPServer class >> stopAll [
+	self servers do: [:ea | ea stop]
 ]
 
 { #category : #'private-starting' }
@@ -146,9 +160,7 @@ FTPServer >> initialize [
 
 { #category : #testing }
 FTPServer >> isConnected [
-	^ self listener notNil
-		and: [ self listener isValid ]
-		and: [ self listener isWaitingForConnection ].
+	^ self listener notNil.
 ]
 
 { #category : #testing }
@@ -164,7 +176,7 @@ FTPServer >> listener [
 { #category : #printing }
 FTPServer >> printOn: aStream [
 	super printOn: aStream.
-	aStream space; nextPutAll: 'port: '; print: self settings port.
+	aStream nextPutAll: ' port: '; print: self settings port.
 ]
 
 { #category : #accessing }
@@ -198,6 +210,11 @@ FTPServer >> serverLoopBody [
 ]
 
 { #category : #accessing }
+FTPServer >> servers [
+	^ self class servers.
+]
+
+{ #category : #accessing }
 FTPServer >> sessions [
 	^ sessions
 ]
@@ -209,24 +226,21 @@ FTPServer >> settings [
 
 { #category : #private }
 FTPServer >> shutDown [
-	self sessions do: [ :each | each close ].
+	self sessions copy 
+		do: [ :each | each close ].
 ]
 
 { #category : #actions }
 FTPServer >> start [
-	self isRunning 
-		ifTrue: [ ^ self ].
-	self createServer.
-	self process resume.
-	self class addServer: self.
+	self isConnected ifTrue: [ ^ self ].
+	self startServer.
 ]
 
 { #category : #private }
 FTPServer >> startServer [
 	listener := FTPServerListener server: self.
 	listener start.
-	self class servers
-		add: self.
+	self servers add: self.
 ]
 
 { #category : #private }
@@ -241,22 +255,18 @@ FTPServer >> startSession: aSocket [
 
 { #category : #actions }
 FTPServer >> stop [
-	self isRunning 
-		ifFalse: [ ^self ].
-	self process terminate.
-	self class removeServer: self.
+	self isConnected ifFalse: [ ^ self ].
+	self stopServer; shutDown.
 ]
 
 { #category : #private }
 FTPServer >> stopServer [
 	listener stop.
 	listener := nil.
-	self class servers
-		remove: self 
-		ifAbsent: nil.
+	self servers remove: self.
 ]
 
 { #category : #private }
 FTPServer >> stopSession: aSession [
-	self sessions remove: aSession.
+	self sessions remove: aSession ifAbsent: nil.
 ]

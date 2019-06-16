@@ -20,15 +20,17 @@ FTPTestCase >> assertResponseCode: anInteger [
 FTPTestCase >> assertResponseLine: aString [
 	self
 		assert: (self response lines anySatisfy: [ :each |
-			each includesSubString: aString ])
+			each includesSubstring: aString ])
 		description: 'Expected substring "' , aString , '" in response.'.
 ]
 
-{ #category : #comparing }
+{ #category : #asserting }
 FTPTestCase >> assertStreamOutput: aBlock equals: aString [
 	| stream |
 	aBlock value: (stream := String new writeStream).
-	self assert: stream contents = aString.
+	self 
+		assert: stream contents = aString 
+		description: aString , ' expected'.
 ]
 
 { #category : #accessing }
@@ -64,4 +66,5 @@ FTPTestCase >> server [
 { #category : #running }
 FTPTestCase >> tearDown [
 	self quit.
+	super tearDown
 ]

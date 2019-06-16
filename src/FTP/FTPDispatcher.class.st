@@ -21,7 +21,7 @@ FTPDispatcher >> children [
 { #category : #initialization }
 FTPDispatcher >> initialize [
 	super initialize.
-	children := Set new.
+	children := OrderedCollection new.
 ]
 
 { #category : #copying }

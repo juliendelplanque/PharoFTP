@@ -83,10 +83,22 @@ FTPVerb >> findContext: aString [
 
 { #category : #conveniance }
 FTPVerb >> findContext: aString type: aSelector [
+	^ self findContext: aString type: aSelector new: false.
+]
+
+{ #category : #conveniance }
+FTPVerb >> findContext: aString type: aSelector new: aBoolean [
 	| target invalid |
 	target := self context lookup: aString.
-	invalid := target isNil 
-		or: [ aSelector == #file and: [ target isFile not ] ]
+	(target isNil and: [ aBoolean ]) ifTrue: [
+		self context canCreate
+			ifFalse: [ self return: FTPResponse permissionDenied ]. 
+		target := aSelector caseOf: {
+			[ #file ] -> [ self context createFileNamed: aString ].
+			[ #directory ] -> [ self context createDirectoryNamed: aString ].
+		} ].
+	invalid := (target isNil
+		or: [ aSelector == #file and: [ target isFile not ] ])
 		or: [ aSelector == #directory and: [ target isDirectory not ] ].
 	invalid ifTrue: [ self return: FTPResponse notFound ].
 	^ target.
@@ -105,6 +117,7 @@ FTPVerb >> response: aResponse [
 { #category : #actions }
 FTPVerb >> return: aResponse [
 	self session return: aResponse.
+	^ aResponse
 ]
 
 { #category : #'accessing-readonly' }

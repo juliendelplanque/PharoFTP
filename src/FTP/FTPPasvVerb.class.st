@@ -19,10 +19,12 @@ FTPPasvVerb class >> verbs [
 FTPPasvVerb >> execute [
 	self request argument notEmpty 
 		ifTrue: [ self return: FTPResponse unsupportedParameter ].
+	self settings passive
+		ifFalse: [ self return: (FTPResponse error: 'Passive mode refused.') ].
 	self state 
 		passive: true;
 		ip: NetNameResolver localHostAddress;
-		port: self settings portrange atRandom.
+		port: self settings range atRandom.
 	self session passiveDataConnection.
 	self return: (FTPResponse code: 227 line: (String streamContents: [ :stream |
 		stream nextPutAll: 'Entering Passive Mode ('.

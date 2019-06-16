@@ -1,7 +1,7 @@
 Class {
 	#name : #FTPPassiveConnection,
-	#superclass : #FTPConnection,
-	#category : 'FTP-Server'
+	#superclass : #FTPSessionStream,
+	#category : #'FTP-Server'
 }
 
 { #category : #'instance creation' }

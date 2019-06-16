@@ -104,11 +104,21 @@ FTPContext >> contents: aString [
 	" Set the content of the receiver, for non-optimized cases override this method, else have a look at #put:startingAt:. "
 ]
 
+{ #category : #convenience }
+FTPContext >> createDirectoryNamed: aString [
+	self session return: FTPResponse permissionDenied.
+]
+
+{ #category : #convenience }
+FTPContext >> createFileNamed: aString [
+	self session return: FTPResponse permissionDenied.
+]
+
 { #category : #accessing }
 FTPContext >> creation [
 	" Return the creation-timestamp of the receiver. "
 
-	^ TimeStamp now.
+	^ DateAndTime now.
 ]
 
 { #category : #convenience }
@@ -171,7 +181,7 @@ FTPContext >> helpString [
 	^ String streamContents: [ :stream | 
 		stream nextPutAll: 'The following commands are recognized:'; cr.
 		commands sort withIndexDo: [ :each :index | 
-			stream nextPutAll: (each padded: #right to: 8 with: Character space).
+			stream nextPutAll: (each padRightTo: 8 with: Character space).
 			index \\ 7 == 0 ifTrue: [ stream cr ] ].
 		stream cr; nextPutAll: 'END' ].
 ]
@@ -234,7 +244,7 @@ FTPContext >> isUserWriteable [
 { #category : #convenience }
 FTPContext >> lookup: aString [
 	| stream name next |
-	(aString isEmpty or: [ aString = '.' ])
+	((aString isEmpty or: [ aString = '.' ]) or: [ aString = '-a' ])
 		ifTrue: [ ^ self ].
 	aString first = $/
 		ifTrue: [ ^ self root lookup: aString allButFirst ].
@@ -243,7 +253,7 @@ FTPContext >> lookup: aString [
 	next := name = '..'
 		ifTrue: [ self parent ]
 		ifFalse: [ self at: name ifAbsent: nil ].
-	^ next notNil 
+	^ next isNotNil 
 		ifTrue: [ next lookup: stream upToEnd ].
 ]
 
@@ -251,7 +261,7 @@ FTPContext >> lookup: aString [
 FTPContext >> modification [
 	" Return the modification-timestamp of the receiver. "
 
-	^ TimeStamp now.
+	^ DateAndTime now.
 ]
 
 { #category : #accessing }

@@ -42,7 +42,7 @@ FTPRequest >> logOn: aStream [
 
 { #category : #conveniance }
 FTPRequest >> normalized [
-	^ self argument withBlanksTrimmed asUppercase.
+	^ self argument trimmed asUppercase.
 ]
 
 { #category : #printing }
@@ -74,7 +74,7 @@ FTPRequest >> verb [
 
 { #category : #printing }
 FTPRequest >> writeOn: aStream ident: aString [
-	aStream nextPutAll: aString; nextPutAll: command.
+	aStream nextPutAll: aString; nextPutAll: self verb.
 	aStream space; nextPutAll: self argument.
 	aStream nextPutAll: String crlf; flush.
 ]

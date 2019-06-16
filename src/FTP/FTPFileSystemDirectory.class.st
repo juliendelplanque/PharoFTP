@@ -8,6 +8,11 @@ Class {
 }
 
 { #category : #'instance-creation' }
+FTPFileSystemDirectory class >> default [
+	^ self on: FileDirectory default.
+]
+
+{ #category : #'instance-creation' }
 FTPFileSystemDirectory class >> on: aDirectory [
 	^ self new
 		setDirectory: aDirectory;
@@ -26,9 +31,22 @@ FTPFileSystemDirectory >> children [
 					yourself ] ].
 ]
 
+{ #category : #conveniance }
+FTPFileSystemDirectory >> createFileNamed: aString [
+	^ (self fileClass parent: self)
+		setOwner: self directory;
+		setEntry: { aString. 0. 0. 0. 0. 0 };
+		yourself.
+]
+
 { #category : #accessing }
 FTPFileSystemDirectory >> directory [
 	^ self owner directoryNamed: self name.
+]
+
+{ #category : #accessing }
+FTPFileSystemDirectory >> entry [
+	^ super entry ifNil: [ entry := self directory ].
 ]
 
 { #category : #testing }

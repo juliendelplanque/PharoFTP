@@ -3,9 +3,11 @@ Class {
 	#superclass : #FTPSmalltalkContext,
 	#instVars : [
 		'selector',
-		'stamp'
+		'user',
+		'modification',
+		'creation'
 	],
-	#category : 'FTP-Context'
+	#category : #'FTP-Context'
 }
 
 { #category : #'accessing-contents' }
@@ -25,8 +27,13 @@ FTPMethodContext >> creation [
 
 { #category : #events }
 FTPMethodContext >> flush [
+	| version |
 	super flush.
-	stamp := nil.
+	version := self method sourceCode.
+	version isNil ifTrue: [ ^ self ].
+	user := 'Foo user'.
+	modification := DateAndTime now.
+	creation := DateAndTime now
 ]
 
 { #category : #'testing-permissions' }
@@ -46,7 +53,7 @@ FTPMethodContext >> modification [
 
 { #category : #accessing }
 FTPMethodContext >> name [
-	^ self selector asString.
+	^ self selector collect: [ :each | each = $: ifTrue: [ $_ ] ifFalse: [ each ] ].
 ]
 
 { #category : #accessing }
@@ -61,7 +68,13 @@ FTPMethodContext >> selector [
 
 { #category : #initialization }
 FTPMethodContext >> setSelector: aSelector [
-	selector := aSelector
+	selector := aSelector.
+	self flush.
+]
+
+{ #category : #accessing }
+FTPMethodContext >> size [
+	^ self contents size.
 ]
 
 { #category : #private }

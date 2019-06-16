@@ -27,7 +27,13 @@ FTPStorVerb >> cleanup: aContext [
 
 { #category : #private }
 FTPStorVerb >> lookup [
-	^ self findContext: self request argument type: #file.
+	| context |
+	context := self 
+		findContext: self request argument 
+		type: #file new: true.
+	context canWrite
+		ifFalse: [ self return: FTPResponse permissionDenied ].
+	^ context.
 ]
 
 { #category : #private }

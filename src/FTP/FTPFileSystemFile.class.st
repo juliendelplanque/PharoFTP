@@ -13,7 +13,7 @@ FTPFileSystemFile >> directory [
 FTPFileSystemFile >> get: aWriteStream startingAt: anInteger [
 	| stream |
 	stream := self directory readOnlyFileNamed: self name. 
-	[ aWriteStream nextPutAll: (stream position: anInteger; upToEnd) ]
+	[ stream binary; position: anInteger; copyInto: aWriteStream ]
 		ensure: [ stream close ].
 ]
 
@@ -21,6 +21,6 @@ FTPFileSystemFile >> get: aWriteStream startingAt: anInteger [
 FTPFileSystemFile >> put: aReadStream startingAt: anInteger [
 	| stream |
 	stream := self directory fileNamed: self name. 
-	[ stream position: anInteger; nextPutAll: aReadStream upToEnd ]
+	[ stream position: anInteger; copyFrom: aReadStream binary ]
 		ensure: [ stream close ].
 ]

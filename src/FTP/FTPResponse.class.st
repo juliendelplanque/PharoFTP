@@ -66,7 +66,7 @@ FTPResponse class >> invalidParamter [
 
 { #category : #errors }
 FTPResponse class >> notFound [
-	^ self code: 550 line: 'No such file or directory'.
+	^ self code: 550 line: 'No such file or directory.'.
 ]
 
 { #category : #accepting }
@@ -74,9 +74,19 @@ FTPResponse class >> okay [
 	^ self code: 200.
 ]
 
+{ #category : #errors }
+FTPResponse class >> permissionDenied [
+	^ self code: 550 line: 'Permission denied.'.
+]
+
 { #category : #accepting }
 FTPResponse class >> ready [
 	^ self code: 220 line: 'SqueakFTP ready'.
+]
+
+{ #category : #rejecting }
+FTPResponse class >> requestedActionAborted [
+	^ self code: 451 line: 'Requested Action Aborted'.
 ]
 
 { #category : #rejecting }
@@ -125,8 +135,8 @@ FTPResponse >> printOn: aStream [
 ]
 
 { #category : #initialization }
-FTPResponse >> setCode: aNumber [
-	code := aNumber
+FTPResponse >> setCode: anInteger [
+	code := anInteger
 ]
 
 { #category : #initialization }
@@ -137,10 +147,12 @@ FTPResponse >> setLines: aCollection [
 { #category : #printing }
 FTPResponse >> writeOn: aStream ident: aString [
 	1 to: self lines size do: [ :index |
-		aStream nextPutAll: aString; print: self code.
-		aStream nextPut: (self lines size = index
-			ifTrue: [ $  ]
-			ifFalse: [ $- ]).
+		aStream nextPutAll: aString.
+		(index = 1 or: [ index = self lines size ])
+			ifTrue: [ aStream print: self code ].
+		(index = 1 and: [ self lines size > 1 ])
+			ifTrue: [ aStream nextPut: $- ]
+			ifFalse: [ aStream nextPut: Character space ].
 		aStream nextPutAll: (self lines at: index).
 		aStream nextPutAll: String crlf ].
 ]
