@@ -422,5 +422,5 @@ FTPContext >> walkbackException: anException [
 FTPContext >> welcomeString [
 	" Return a welcome string to be displayed when a new session is started. "
 
-	^ 'SqueakFTP ready'
+	^ 'PharoFTP ready'
 ]
