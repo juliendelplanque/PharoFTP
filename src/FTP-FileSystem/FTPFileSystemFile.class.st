@@ -1,7 +1,7 @@
 Class {
 	#name : #FTPFileSystemFile,
 	#superclass : #FTPFileSystem,
-	#category : 'FTP-Context'
+	#category : #'FTP-FileSystem'
 }
 
 { #category : #accessing }

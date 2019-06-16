@@ -5,7 +5,7 @@ Class {
 		'owner',
 		'entry'
 	],
-	#category : 'FTP-Context'
+	#category : #'FTP-FileSystem'
 }
 
 { #category : #accessing }
