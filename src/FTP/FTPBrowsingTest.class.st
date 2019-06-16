@@ -1,8 +1,123 @@
 Class {
 	#name : #FTPBrowsingTest,
 	#superclass : #FTPTestCase,
+	#instVars : [
+		'server',
+		'client'
+	],
 	#category : #'FTP-Tests'
 }
+
+{ #category : #asserting }
+FTPBrowsingTest >> assertResponseCode: anInteger [
+	self 
+		assert: self response code = anInteger
+		description: 'Expected response code ' , anInteger asString , ' but got ' , self response code asString , '.'.
+]
+
+{ #category : #asserting }
+FTPBrowsingTest >> assertResponseLine: aString [
+	self
+		assert: (self response lines anySatisfy: [ :each |
+			each includesSubstring: aString ])
+		description: 'Expected substring "' , aString , '" in response.'.
+]
+
+{ #category : #accessing }
+FTPBrowsingTest >> client [
+	^ client
+]
+
+{ #category : #'accessing-config' }
+FTPBrowsingTest >> context [
+	^ FTPTestContext new
+		name: 'root';
+		children: (Array 
+			with: (FTPTestContext new
+				name: 'd1';
+				children: (Array
+					with: (FTPTestContext new
+						name: 'f1';
+						contents: 'foo';
+						yourself)
+					with: (FTPTestContext new
+						name: 'f2';
+						contents: 'bar';
+						yourself));
+				yourself)
+			with: (FTPTestContext new
+				name: 'd2';
+				children: Array new;
+				yourself)
+			with: (FTPTestContext new
+				name: 'd3';
+				children: Array new;
+				yourself)
+			with: (FTPTestContext new
+				name: 'f3';
+				yourself));
+		yourself.
+]
+
+{ #category : #'accessing-config' }
+FTPBrowsingTest >> ip [
+	^ #[127 0 0 1] asSocketAddress
+]
+
+{ #category : #testing }
+FTPBrowsingTest >> isClientConnected [
+	^ self client notNil and: [ self client isConnected ].
+]
+
+{ #category : #testing }
+FTPBrowsingTest >> isServerConnected [
+	^ self server notNil and: [ self server isConnected ].
+]
+
+{ #category : #actions }
+FTPBrowsingTest >> open [
+	self isClientConnected
+		ifTrue: [ self client close ].
+	client := FTPClient openOnHost: self ip port: self port.
+]
+
+{ #category : #'accessing-config' }
+FTPBrowsingTest >> port [
+	^ 31415
+]
+
+{ #category : #actions }
+FTPBrowsingTest >> quit [
+	self client quit
+]
+
+{ #category : #accessing }
+FTPBrowsingTest >> response [
+	^ FTPResponse fromString: self client lastResponse readStream.
+]
+
+{ #category : #accessing }
+FTPBrowsingTest >> server [
+	^ server
+]
+
+{ #category : #running }
+FTPBrowsingTest >> setUp [
+	super setUp.
+	server := FTPServer on: self port context: self context.
+	server settings name: 'FTP-Test'.
+	server start.
+	self waitForServerToProcessRequest
+]
+
+{ #category : #running }
+FTPBrowsingTest >> tearDown [
+	self isClientConnected
+		ifTrue: [ self client close ].
+	self isServerConnected
+		ifTrue: [ self server stop ].
+	super tearDown
+]
 
 { #category : #'testing-settings' }
 FTPBrowsingTest >> testAscii [
@@ -72,14 +187,22 @@ FTPBrowsingTest >> testPassive [
 
 { #category : #'testing-navigation' }
 FTPBrowsingTest >> testPwd [
-	self open; assert: self client pwd = '/'.
+	self open.
+	self assert: self client pwd equals: '/'
 ]
 
 { #category : #'testing-connection' }
 FTPBrowsingTest >> testSessions [
 	self assert: self server sessions isEmpty.
 	self open.
-	self assert: self server sessions size = 1.
-	self quit.
-	self assert: self server sessions isEmpty.
+	self assert: self server sessions size equals: 1.
+	self client quit.
+	self waitForServerToProcessRequest.
+	self assert: self server sessions isEmpty
+]
+
+{ #category : #private }
+FTPBrowsingTest >> waitForServerToProcessRequest [
+	"Give time to the server to process what is required."
+	100 milliSeconds wait
 ]

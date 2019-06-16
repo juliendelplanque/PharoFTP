@@ -5,13 +5,6 @@ Class {
 }
 
 { #category : #testing }
-FTPRequestTest >> testCommand [
-	self assert: (FTPRequest readFrom: 'foo' readStream) command equals: 'foo'.
-	self assert: (FTPRequest readFrom: 'Foo' readStream) command equals: 'foo'.
-	self assert: (FTPRequest readFrom: 'FOO' readStream) command equals: 'foo'.
-]
-
-{ #category : #testing }
 FTPRequestTest >> testNoArgument [
 	self assert: (FTPRequest readFrom: 'a' readStream) verb = 'A'.
 	self assert: (FTPRequest readFrom: 'a' readStream) argument = ''.
