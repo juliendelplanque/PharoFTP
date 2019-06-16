@@ -13,5 +13,5 @@ FTPExternalIDEClassDefinitionContext >> contents [
 
 { #category : #accessing }
 FTPExternalIDEClassDefinitionContext >> name [
-	^ 'class-definition.st'
+	^ '_class-definition.st'
 ]
