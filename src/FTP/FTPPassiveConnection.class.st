@@ -1,6 +1,9 @@
 Class {
 	#name : #FTPPassiveConnection,
 	#superclass : #FTPSessionStream,
+	#instVars : [
+		'process'
+	],
 	#category : #'FTP-Server'
 }
 

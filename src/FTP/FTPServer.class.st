@@ -7,7 +7,8 @@ Class {
 	#instVars : [
 		'settings',
 		'listener',
-		'sessions'
+		'sessions',
+		'process'
 	],
 	#classVars : [
 		'Servers'

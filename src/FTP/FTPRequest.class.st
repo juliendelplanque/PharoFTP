@@ -3,9 +3,10 @@ Class {
 	#superclass : #FTPMessage,
 	#instVars : [
 		'verb',
-		'argument'
+		'argument',
+		'command'
 	],
-	#category : 'FTP-Server'
+	#category : #'FTP-Server'
 }
 
 { #category : #'instance creation' }
